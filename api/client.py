@@ -1,4 +1,6 @@
 import requests
+import json
+
 
 class ApiClient(object):
 
@@ -7,18 +9,24 @@ class ApiClient(object):
         self.base_url = "https://docsapi.helpscout.net/v1"
         self.session = requests.Session()
         self.session.auth = (api_key, "X")
-        self.session.headers.update({"Content-Type": "application/json"})
 
     @staticmethod
-    def _remove_empty_params(params):
-        import json
-        return json.dumps({k: v for k, v in params.iteritems() if v is not None})
+    def _remove_empty_params(params, to_json=True):
+        filtered_data = {k: v for k, v in params.items() if v is not None}
+        if to_json:
+            return json.dumps(filtered_data)
+        return filtered_data
 
-    def _http_action(self, url, action_name, **kwargs):
+    def _http_action(self, url, action_name, is_content_json=True, **kwargs):
+
+        if is_content_json:
+            headers = {"Content-Type": "application/json"}
+            kwargs["headers"] = headers
+
         url = "{}/{}".format(self.base_url, url)
 
         if action_name == "GET":
-            response = self.session.get(url, **kwargs)
+            response = self.session.get(url,  **kwargs)
 
         if action_name == "PUT":
             response = self.session.put(url, **kwargs)
@@ -29,13 +37,15 @@ class ApiClient(object):
         if action_name == "DELETE":
             response = self.session.delete(url, **kwargs)
 
-        print response.json()
+
         if not response.ok:
             raise RuntimeError("API raised code {} with message {}".format(response.status_code, response.text))
+        print(response.json())
         return response.json()
 
     def post(self, url, post_data, **kwargs):
-        return self._http_action(url, "POST", data=self._remove_empty_params(post_data), **kwargs)
+        return self._http_action(url, "POST", data=self._remove_empty_params(post_data,),
+                                 **kwargs)
 
     def get(self, url, query_params={}, **kwargs):
         return self._http_action(url, "GET", params=self._remove_empty_params(query_params), **kwargs)
@@ -47,9 +57,10 @@ class ApiClient(object):
         return self._http_action(url, "PUT", data=self._remove_empty_params(put_data), **kwargs)
 
     def get_site_by_sub_domain(self, sub_domain):
-        for site in self.get("sites")["items"]:
+        for site in self.get("sites")["sites"]["items"]:
             if site["subDomain"] == sub_domain:
                 return site
+
 
     def create_site(self, sub_domain, title):
         return {"id": 4}
@@ -67,9 +78,10 @@ class ApiClient(object):
 
     def upload_article(self, file_obj, collection_id, name):
         article_file = {"file": file_obj}
-        post_data = {"key": self.api_key, "collectionId": collection_id, "reload": True,
-                     "name": name}
-        return self.post("articles/upload", post_data, files=article_file)["article"]
+        post_data =  self._remove_empty_params({"key": self.api_key, "collectionId": collection_id, "reload": True,
+                     "name": name}, to_json=False)
+        url = "{}/{}".format(self.base_url, "articles/upload")
+        return self.session.post(url, data=post_data, files=article_file).json()["article"]
 
     def search_articles(self, query, collection_id=None, status=None, visibility=None):
         query_params = {"query": query, "collectionId": collection_id, "status": status,
@@ -79,7 +91,8 @@ class ApiClient(object):
     def get_article_by_slug(self, slug, collection_id=None):
         articles = self.search_articles(slug, collection_id)["articles"]["items"]
         for article in articles:
-            if  article["slug"] == slug:
+            print(article["slug"])
+            if article["slug"] == slug:
                 return article
 
     def delete_article(self, article_id):
@@ -88,7 +101,4 @@ class ApiClient(object):
     def update_article(self, article_id, text=None, status=None, slug=None, categories=None, related=None):
         post_data = {"text": text, "status": status, "slug": slug, "categories": categories,
                      "related": related, "reload": True}
-        return self.post("articles/{}".format(article_id), post_data)
-
-
-
+        return self.post("articles/{}".format(article_id), post_data)["article"]

@@ -1,0 +1,3 @@
+
+class ConfigSetup(object):
+    pass
