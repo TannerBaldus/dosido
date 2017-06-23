@@ -17,17 +17,25 @@ Options:
   --private     Make the collection private.
 """
 
-import requests
-import json
+from pathlib import Path
+from ConfigParser import SafeConfigParser
+from glob import glob
 import os
 
 from docopt import docopt
 from distutils.util import strtobool
 from api.client import ApiClient
 
+
 def query_user(query, yes_no=False):
     if yes_no:
-        return bool(strtobool(raw_input("{} (y/n)\n".format(query))))
+        answer = None
+        while answer is None:
+            try:
+                answer = bool(strtobool(raw_input("{} (yes/no)\n".format(query))))
+            except ValueError:
+                answer = bool(strtobool(raw_input("Please answer yes, y, n or no.\n")))
+        return answer
     return raw_input("{}\n".format(query))
 
 
