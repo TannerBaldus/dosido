@@ -4,14 +4,18 @@ import os
 
 class FileArticle(object):
 
-    def __init__(self, file_path, config, api_client,  temp=False):
-        self.file_obj = open(file_path, 'r')
-        self.collection_id = self._get_collection_id_from_path(file_path)
+    def __init__(self, file_path, config, api_client):
+        self.file_path = file_path
+        self.image_host = config.get("site_details", "image_host")
+        self.api_client = api_client
         self.config = config
-        self.name = os.path.basename(self.file_obj.name)
+        base_name = os.path.basename(file_path)
+        self.slug = base_name
+        self.title = string.capwords(" ".join(base_name.split("_")))
 
-    def _get_collection_id_from_path(self, file_path):
-        collection_name = Path(file_path).parent.name
+    @property
+    def collection_id(self):
+        collection_name = Path(self.file_path).parent.name
         collection_id = self.config.get("collections", collection_name)
         return collection_id
 
