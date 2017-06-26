@@ -1,9 +1,12 @@
 from pathlib import Path
+from configparser import NoOptionError
 import os
 import string
 
 from markdown import markdown
+from exceptions import *
 import panflute
+
 
 
 
@@ -21,8 +24,10 @@ class FileArticle(object):
     @property
     def collection_id(self):
         collection_name = Path(self.file_path).parent.name
-        collection_id = self.config.get("collections", collection_name)
-        return collection_id
+        try:
+            return self.config.get("collections", collection_name)
+        except NoOptionError:
+            raise CollectionNotSetup(collection_name)
 
     def _convert_text(self, skip_internals):
         file_text = open(self.file_path).read()
