@@ -48,7 +48,10 @@ class FileArticle(object):
 
     @property
     def public_url(self):
-        return "FOOBAR.GLAH"
+        article_response = self.api_client.get_article_by_slug(self.slug)
+        if not article_response:
+            raise LinkedArticleNotFound(self.slug)
+        return article_response["url"]
 
     @staticmethod
     def is_internal_link(elem):
