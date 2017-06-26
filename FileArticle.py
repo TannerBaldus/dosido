@@ -8,8 +8,6 @@ from exceptions import *
 import panflute
 
 
-
-
 class FileArticle(object):
 
     def __init__(self, file_path, config, api_client):
