@@ -78,7 +78,7 @@ class Dosido(object):
                 self.article_update(file_pattern, cmd_args["--draft"], cmd_args["--skip-internals"])
 
         elif cmd_args["collection"]:
-            self.new_collection(cmd_args["<name>"], self.config["site_id"], cmd_args["--private"])
+            self.new_collection(cmd_args["<name>"], self.config["site_id"], cmd_args["--private"], cmd_args["--no-dir"])
 
         print("Done")
 
