@@ -155,7 +155,16 @@ class Dosido(object):
 def main():
     args = docopt(__doc__)
     d = Dosido()
-    d.dispatch(args)
+
+    try:
+        d.dispatch(args)
+    except ArticleDoesNotExist as e:
+        print("Couldn't find article with slug {}. Did you call dosido article new first?".format(e.slug))
+    except LinkedArticleNotFound as e:
+        print(("There was no public url for the linked article with slug {0}.\n"
+               "Try using --skip-internals then updating once {0} is uploaded to help scout").format(e.slug))
+    except CollectionNotSetup as e:
+        print("There is no collection {} in help scout. Run dosido collection new".format(e.collection_name))
 
 if __name__ == '__main__':
     main()
