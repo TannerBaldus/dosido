@@ -124,33 +124,21 @@ class Dosido(object):
         visibility = "private" if private else "public"
         return self.api_client.create_collection(site_id, name, visibility)["collection"]
 
-    def article_create(self, file_pattern, publish):
+    def article_create(self, file_pattern, skip_internals, publish):
+        for p in self._get_md_files(file_pattern):
+            file_article = FileArticle(p, self.config, self.api_client)
+            print("Creating HelpScout article from {}".format(file_article.file_path))
+            file_article.create(skip_internals, publish)
+            print("created")
+
+    def article_update(self, file_pattern, is_draft, skip_internals):
         file_paths = self._get_md_files(file_pattern)
         for p in file_paths:
             file_article = FileArticle(p, self.config, self.api_client)
-            print("Creating HelpScout article from {}".format(file_article.file_path))
-            print(file_article.create(skip_internals=True))
-            print("created")
-
-
-    def article_update(self, file_pattern, draft):
-        file_paths = self._get_md_files(file_pattern)
-        for p in file_paths:
-            self._update_article(FileArticle(p, self.config, temp=True))
+            print("Updating {}".format(file_article.file_path))
+            file_article.update(is_draft, skip_internals)
+            print("updated")
         pass
-
-    def _create_article(self, file_article, temp=False):
-        name = file_article.temp_name if temp else file_article.name
-        return self.api_client.upload_article(file_article.file_obj, file_article.collection_id, name)
-
-    def _update_article(self, file_article):
-        tmp_article = self._create_article(file_article, temp=True)
-        parsed_markdown = tmp_article["text"]
-        article_id = self.api_client.get_article_by_slug(file_article.name, collection_id=file_article.collection_id)
-        updated_article = self.api_client.update_article(article_id, text=parsed_markdown)
-        self.api_client.delete(tmp_article['id'])
-        return updated_article
-
 
 def main():
     args = docopt(__doc__)
