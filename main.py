@@ -8,14 +8,15 @@ Usage:
   dosido init
   dosido article new <file-pattern> [--publish --skip-internals]
   dosido article update <file-pattern> [--draft --skip-interals]
-  dosido collection new <name> [--private]
+  dosido collection new <name> [--private --no-dir]
 
 Options:
-  -h --help     Show this screen.
-  --version     Show version.
-  --draft       Make the update only a draft.
-  --private     Make the collection private.
-  -s --skip-internals  don't try to link to other articles since they might not be in helpscout yet
+  -h --help                Show this screen.
+  --version                Show version.
+  -d --draft               Make the update only a draft.
+  --private                Make the collection private.
+  -s --skip-internals      don't try to link to other articles since they might not be in HelpScout yet
+  -nd --no-dir             don't make a directory for the collection
 """
 
 
@@ -43,9 +44,6 @@ def query_user(query, yes_no=False):
                 answer = bool(strtobool(input("Please answer yes, y, n or no.\n")))
         return answer
     return input("{}\n".format(query))
-
-
-
 
 
 class Dosido(object):
