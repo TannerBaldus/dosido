@@ -17,7 +17,7 @@ class FileArticle(object):
         self.api_client = api_client
         self.config = config
         base_name = Path(file_path).stem
-        self.slug = base_name.replace("_", "-")
+        self.slug = self._path_to_slug(base_name)
         self.title = string.capwords(" ".join(base_name.split("_")))
 
     def create(self, skip_internals):
@@ -43,6 +43,13 @@ class FileArticle(object):
             return self.config.get("collections", collection_name)
         except NoOptionError:
             raise CollectionNotSetup(collection_name)
+
+    @staticmethod
+    def _path_to_slug(path_string):
+        use_dashes = path_string.replace("_", "-")
+        # for when an article links to another's specific paragraph like /heroes/squirrel_girl#origins
+        ignore_paragraph_link = use_dashes.split("#")[0]
+        return ignore_paragraph_link
 
     def _convert_text(self, skip_internals):
         file_text = open(self.file_path).read()
