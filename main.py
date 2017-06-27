@@ -26,6 +26,7 @@ import sys
 from docopt import docopt
 from distutils.util import strtobool
 from api.client import ApiClient
+from FileArticle import FileArticle
 
 
 def query_user(query, yes_no=False):
@@ -122,7 +123,11 @@ class Dosido(object):
     def article_create(self, file_pattern, publish):
         file_paths = self._get_md_files(file_pattern)
         for p in file_paths:
-            self._create_article(FileArticle(p, self.config))
+            file_article = FileArticle(p, self.config, self.api_client)
+            print("Creating HelpScout article from {}".format(file_article.file_path))
+            print(file_article.create(skip_internals=True))
+            print("created")
+
 
     def article_update(self, file_pattern, draft):
         file_paths = self._get_md_files(file_pattern)
