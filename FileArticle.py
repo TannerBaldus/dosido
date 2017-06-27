@@ -22,6 +22,21 @@ class FileArticle(object):
         self.slug = base_name
         self.title = string.capwords(" ".join(base_name.split("_")))
 
+    def create(self, skip_internals):
+        return self.api_client.create_article(self.collection_id, self.title, self._convert_text(skip_internals),
+                                       slug=self.slug)
+
+    def update(self, is_draft):
+        pass
+
+
+    @property
+    def _article_id(self):
+        article_response = self.api_client.get_article_by_slug(self.slug)
+        if not article_response:
+            raise ArticleDoesNotExist
+        return article_response["id"]
+
     @property
     def collection_id(self):
         collection_name = Path(self.file_path).parent.name
