@@ -6,8 +6,8 @@ HS Docs.
 
 Usage:
   dosido init
-  dosido article new <file-pattern> [--publish]
-  dosido article update <file-pattern> [--draft]
+  dosido article new <file-pattern> [--publish --skip-internals]
+  dosido article update <file-pattern> [--draft --skip-interals]
   dosido collection new <name> [--private]
 
 Options:
@@ -15,6 +15,7 @@ Options:
   --version     Show version.
   --draft       Make the update only a draft.
   --private     Make the collection private.
+  -s --skip-internals  don't try to link to other articles since they might not be in helpscout yet
 """
 
 
@@ -25,8 +26,11 @@ import sys
 
 from docopt import docopt
 from distutils.util import strtobool
+
 from api.client import ApiClient
 from FileArticle import FileArticle
+from exceptions import *
+
 
 
 def query_user(query, yes_no=False):
@@ -71,9 +75,9 @@ class Dosido(object):
         if cmd_args["article"]:
             file_pattern = cmd_args["<file-pattern>"]
             if cmd_args["new"]:
-                self.article_create(file_pattern, cmd_args["--publish"])
+                self.article_create(file_pattern, cmd_args["--publish"], cmd_args["--skip-internals"])
             if cmd_args["update"]:
-                self.article_update(file_pattern, cmd_args["--draft"])
+                self.article_update(file_pattern, cmd_args["--draft"], cmd_args["--skip-internals"])
 
         elif cmd_args["collection"]:
             self.new_collection(cmd_args["<name>"], self.config["site_id"], cmd_args["--private"])
