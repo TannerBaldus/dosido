@@ -16,13 +16,15 @@ class FileArticle(object):
         self.image_host = config.get("site_details", "image_host")
         self.api_client = api_client
         self.config = config
+
         base_name = Path(file_path).stem
         self.slug = self._path_to_slug(base_name)
         self.title = string.capwords(" ".join(base_name.split("_")))
 
-    def create(self, skip_internals):
+    def create(self, skip_internals, publish):
+        status = "published" if publish else "notpublished"
         return self.api_client.create_article(self.collection_id, self.title, self._convert_text(skip_internals),
-                                       slug=self.slug)
+                                       slug=self.slug, status=status)
 
     def update(self, is_draft, skip_internals):
         if is_draft:
