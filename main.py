@@ -6,25 +6,32 @@ HS Docs.
 
 Usage:
   dosido init
-  dosido article new <file-pattern> [--publish]
-  dosido article update <file-pattern> [--draft]
-  dosido collection new <name> [--private]
+  dosido article new <file-pattern> [--publish --skip-internals]
+  dosido article update <file-pattern> [--draft --skip-interals]
+  dosido collection new <name> [--private --no-dir]
 
 Options:
-  -h --help     Show this screen.
-  --version     Show version.
-  --draft       Make the update only a draft.
-  --private     Make the collection private.
+  -h --help                Show this screen.
+  --version                Show version.
+  -d --draft               Make the update only a draft.
+  --private                Make the collection private.
+  -s --skip-internals      don't try to link to other articles since they might not be in HelpScout yet
+  -nd --no-dir             don't make a directory for the collection
 """
 
-from pathlib import Path
-from ConfigParser import SafeConfigParser
+
 from glob import glob
+import configparser
 import os
+import sys
 
 from docopt import docopt
 from distutils.util import strtobool
+
 from api.client import ApiClient
+from FileArticle import FileArticle
+from exceptions import *
+
 
 
 def query_user(query, yes_no=False):
@@ -32,18 +39,18 @@ def query_user(query, yes_no=False):
         answer = None
         while answer is None:
             try:
-                answer = bool(strtobool(raw_input("{} (yes/no)\n".format(query))))
+                answer = bool(strtobool(input("{} (yes/no)\n".format(query))))
             except ValueError:
-                answer = bool(strtobool(raw_input("Please answer yes, y, n or no.\n")))
+                answer = bool(strtobool(input("Please answer yes, y, n or no.\n")))
         return answer
-    return raw_input("{}\n".format(query))
+    return input("{}\n".format(query))
 
 
-class Dosido():
+class Dosido(object):
 
     def __init__(self):
         self.config_filename = "config.ini"
-        self.config = SafeConfigParser()
+        self.config = configparser.ConfigParser()
         self.config.read(self.config_filename)
         self.api_key = (self.config.has_option("api_info", "api_key") and self.config.get("api_info", "api_key")) or None
         self.api_client = None if not self.api_key else ApiClient(self.api_key)
@@ -61,19 +68,19 @@ class Dosido():
 
         if not self.api_client:
             print("Dosido has not been configured. Run: dosido init")
-            return
+            sys.exit()
 
         if cmd_args["article"]:
             file_pattern = cmd_args["<file-pattern>"]
             if cmd_args["new"]:
-                self.article_create(file_pattern, cmd_args["--publish"])
+                self.article_create(file_pattern, cmd_args["--publish"], cmd_args["--skip-internals"])
             if cmd_args["update"]:
-                self.article_update(file_pattern, cmd_args["--draft"])
-            return
+                self.article_update(file_pattern, cmd_args["--draft"], cmd_args["--skip-internals"])
 
-        if cmd_args["collection"]:
-            self.new_collection(cmd_args["<name>"], self.config["site_id"], cmd_args["--private"])
-            return
+        elif cmd_args["collection"]:
+            self.new_collection(cmd_args["<name>"], self.config["site_id"], cmd_args["--private"], cmd_args["--no-dir"])
+
+        print("Done")
 
     def initialize(self):
         api_key = query_user("What is your api key?")
@@ -83,10 +90,8 @@ class Dosido():
         site_id = self.setup_site()
         self.config.set("api_info", "site_id", str(site_id))
         collections = self.setup_collections(site_id)
-        for name, collection_id in collections.iteritems():
+        for name, collection_id in collections.items():
             self.config.set("collections", name, collection_id)
-        # collections = self.setup_collections(site_id)
-        # self.config["collections"] = collections
         self.config.write(open(self.config_filename, "w"))
 
     def setup_site(self):
@@ -113,38 +118,41 @@ class Dosido():
             another = query_user("Would you like to make another collection?", yes_no=True)
         return collections
 
-    def new_collection(self, name, site_id, private):
+    def new_collection(self, name, site_id, private, no_dir):
         visibility = "private" if private else "public"
+        if not no_dir:
+            os.makedirs(name)
         return self.api_client.create_collection(site_id, name, visibility)["collection"]
 
-    def article_create(self, file_pattern, publish):
+    def article_create(self, file_pattern, skip_internals, publish):
+        for p in self._get_md_files(file_pattern):
+            file_article = FileArticle(p, self.config, self.api_client)
+            print("Creating HelpScout article from {}".format(file_article.file_path))
+            file_article.create(skip_internals, publish)
+            print("created")
+
+    def article_update(self, file_pattern, is_draft, skip_internals):
         file_paths = self._get_md_files(file_pattern)
         for p in file_paths:
-            self._create_article(p)
-
-    def article_update(self, file_pattern, draft):
+            file_article = FileArticle(p, self.config, self.api_client)
+            print("Updating {}".format(file_article.file_path))
+            file_article.update(is_draft, skip_internals)
+            print("updated")
         pass
-
-    def _create_article(self, file_path, temp=False):
-        file_obj = open(file_path, "r")
-        article_name = "{}_tmp".format(file_obj.name) if temp else None
-        return self.api_client.upload_article(file_obj, self._get_collection_id_from_path(file_path), article_name)
-
-    def _update_article(self, file_path):
-        tmp_article = self._create_article(file_path)
-        parsed_markdown = tmp_article["text"]
-
-
-    def _get_collection_id_from_path(self, file_path):
-        collection_name = Path(file_path).parent.name
-        collection_id = self.config.get("collections", collection_name)
-        return collection_id
-
 
 def main():
     args = docopt(__doc__)
     d = Dosido()
-    d.dispatch(args)
+
+    try:
+        d.dispatch(args)
+    except ArticleDoesNotExist as e:
+        print("Couldn't find article with slug {}. Did you call dosido article new first?".format(e.slug))
+    except LinkedArticleNotFound as e:
+        print(("There was no public url for the linked article with slug {0}.\n"
+               "Try using --skip-internals then updating once {0} is uploaded to help scout").format(e.slug))
+    except CollectionNotSetup as e:
+        print("There is no collection {} in help scout. Run dosido collection new".format(e.collection_name))
 
 if __name__ == '__main__':
     main()
