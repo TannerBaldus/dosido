@@ -118,8 +118,10 @@ class Dosido(object):
             another = query_user("Would you like to make another collection?", yes_no=True)
         return collections
 
-    def new_collection(self, name, site_id, private):
+    def new_collection(self, name, site_id, private, no_dir):
         visibility = "private" if private else "public"
+        if not no_dir:
+            os.makedirs(name)
         return self.api_client.create_collection(site_id, name, visibility)["collection"]
 
     def article_create(self, file_pattern, skip_internals, publish):
