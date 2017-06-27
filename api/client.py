@@ -91,7 +91,6 @@ class ApiClient(object):
     def get_article_by_slug(self, slug, collection_id=None):
         articles = self.search_articles(slug, collection_id)["articles"]["items"]
         for article in articles:
-            print(article["slug"])
             if article["slug"] == slug:
                 return article
 
@@ -101,7 +100,7 @@ class ApiClient(object):
     def update_article(self, article_id, text=None, status=None, slug=None, categories=None, related=None):
         post_data = {"text": text, "status": status, "slug": slug, "categories": categories,
                      "related": related, "reload": True}
-        return self.post("articles/{}".format(article_id), post_data)["article"]
+        return self.put("articles/{}".format(article_id), post_data)["article"]
 
     def save_draft(self, article_id, text):
         post_data = {"text": text}
