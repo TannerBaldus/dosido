@@ -4,8 +4,11 @@ import os
 import string
 
 from markdown import markdown
+from bs4 import BeautifulSoup
+import jinja2
+
 from exceptions import *
-import panflute
+
 
 
 class FileArticle(object):
@@ -29,28 +32,35 @@ class FileArticle(object):
 
     def _convert_text(self, skip_internals):
         file_text = open(self.file_path).read()
-        text = markdown(file_text, extensions=["codehilite", "fenced_code", "admonition", "toc"])
-        elements = panflute.convert_text(text, input_format="html", output_format="panflute")
-        curried_replace_links = lambda elem, doc: self.replace_links(elem, doc, skip_internals=skip_internals)
-        for node in elements:
-            node.walk(curried_replace_links)
-        return panflute.convert_text(elements, input_format="panflute", output_format="html")
+        rendered_html = markdown(file_text, extensions=["codehilite", "fenced_code", "admonition", "toc"])
+        return self._update_references_for_helpscout(rendered_html, skip_internals)
 
-    def replace_links(self, elem, doc, skip_internals):
-        if type(elem) == panflute.Image:
-            elem.url = "{}/{}".format(self.image_host, elem.url)
+    def _update_references_for_helpscout(self, html, skip_internals):
+        soup = BeautifulSoup(html,  "html.parser")
+        if not skip_internals:
+            self._convert_internal_links(soup)
+        self._convert_image_links(soup)
+        return str(soup)
 
-        if type(elem) == panflute.Link and self.is_internal_link(elem) and not skip_internals:
-            linked_article = FileArticle(elem.url, self.config, self.api_client)
-            elem.url = linked_article.public_url
+    def _convert_image_links(self, soup):
+        anchor_tags = soup.find_all("img")
+        for tag in anchor_tags:
+            if self._is_internal_link(tag):
+                tag["src"] = "{}/{}".format(self.image_host, tag["src"])
+
+    def _convert_internal_links(self, soup):
+        anchor_tags = soup.find_all("a")
+        for tag in anchor_tags:
+            if self._is_internal_link(tag):
+                tag["href"] = FileArticle(tag["href"], self.config, self.api_client)._public_url
 
     @property
-    def public_url(self):
+    def _public_url(self):
         article_response = self.api_client.get_article_by_slug(self.slug)
         if not article_response:
             raise LinkedArticleNotFound(self.slug)
         return article_response["url"]
 
     @staticmethod
-    def is_internal_link(elem):
-        return not elem.url.startswith("http")
+    def _is_internal_link(anchor_tag):
+        return not anchor_tag["href"].startswith("http")
