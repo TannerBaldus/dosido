@@ -1,6 +1,5 @@
 from pathlib import Path
 from configparser import NoOptionError
-import os
 import string
 
 from markdown import markdown
@@ -66,8 +65,8 @@ class FileArticle(object):
         return str(soup)
 
     def _convert_image_links(self, soup):
-        anchor_tags = soup.find_all("img")
-        for tag in anchor_tags:
+        img_tags = soup.find_all("img")
+        for tag in img_tags:
             if self._is_internal_link(tag):
                 tag["src"] = "{}/{}".format(self.image_host, tag["src"])
 
