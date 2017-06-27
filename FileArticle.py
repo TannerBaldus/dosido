@@ -24,9 +24,10 @@ class FileArticle(object):
         return self.api_client.create_article(self.collection_id, self.title, self._convert_text(skip_internals),
                                        slug=self.slug)
 
-    def update(self, is_draft):
-        pass
-
+    def update(self, is_draft, skip_internals):
+        if is_draft:
+            return self.api_client.save_draft(self._article_id, self._convert_text(skip_internals))
+        return self.api_client.update_article(self._article_id, text=self._convert_text(skip_internals))
 
     @property
     def _article_id(self):
