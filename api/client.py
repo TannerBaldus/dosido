@@ -17,7 +17,7 @@ class ApiClient(object):
             return json.dumps(filtered_data)
         return filtered_data
 
-    def _http_action(self, url, action_name, is_content_json=True, **kwargs):
+    def _http_action(self, url, action_name, is_content_json=True, is_response_json=True, **kwargs):
 
         if is_content_json:
             headers = {"Content-Type": "application/json"}
@@ -40,8 +40,10 @@ class ApiClient(object):
 
         if not response.ok:
             raise RuntimeError("API raised code {} with message {}".format(response.status_code, response.text))
-        print(response.json())
-        return response.json()
+
+        if is_response_json:
+            return response.json()
+        return response.text
 
     def post(self, url, post_data, **kwargs):
         return self._http_action(url, "POST", data=self._remove_empty_params(post_data,),
@@ -61,7 +63,6 @@ class ApiClient(object):
             if site["subDomain"] == sub_domain:
                 return site
 
-
     def create_site(self, sub_domain, title):
         return {"id": 4}
 
@@ -76,12 +77,11 @@ class ApiClient(object):
                 return collection
         return None
 
-    def upload_article(self, file_obj, collection_id, name):
-        article_file = {"file": file_obj}
-        post_data =  self._remove_empty_params({"key": self.api_key, "collectionId": collection_id, "reload": True,
-                     "name": name}, to_json=False)
-        url = "{}/{}".format(self.base_url, "articles/upload")
-        return self.session.post(url, data=post_data, files=article_file).json()["article"]
+    def create_article(self, collection_id, name, text,
+                       status=None, slug=None, categories=None, related=None):
+        post_data = {"text": text, "collectionId": collection_id, "status": status, "name":name,
+                     "slug": slug, "categories": categories, "related": related, "reload": True}
+        return self.post("articles", post_data)["article"]
 
     def search_articles(self, query, collection_id=None, status=None, visibility=None):
         query_params = {"query": query, "collectionId": collection_id, "status": status,
@@ -102,3 +102,7 @@ class ApiClient(object):
         post_data = {"text": text, "status": status, "slug": slug, "categories": categories,
                      "related": related, "reload": True}
         return self.post("articles/{}".format(article_id), post_data)["article"]
+
+    def save_draft(self, article_id, text):
+        post_data = {"text": text}
+        return self.post(url="articles/{}/drafts".format(article_id), post_data=post_data, is_response_json=False)
