@@ -5,10 +5,8 @@ import string
 
 from markdown import markdown
 from bs4 import BeautifulSoup
-import jinja2
 
 from exceptions import *
-
 
 
 class FileArticle(object):
@@ -18,8 +16,8 @@ class FileArticle(object):
         self.image_host = config.get("site_details", "image_host")
         self.api_client = api_client
         self.config = config
-        base_name = os.path.basename(file_path)
-        self.slug = base_name
+        base_name = Path(file_path).stem
+        self.slug = base_name.replace("_", "-")
         self.title = string.capwords(" ".join(base_name.split("_")))
 
     def create(self, skip_internals):
