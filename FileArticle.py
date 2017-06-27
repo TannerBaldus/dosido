@@ -33,7 +33,7 @@ class FileArticle(object):
     def _article_id(self):
         article_response = self.api_client.get_article_by_slug(self.slug)
         if not article_response:
-            raise ArticleDoesNotExist
+            raise ArticleDoesNotExist(self.slug)
         return article_response["id"]
 
     @property
