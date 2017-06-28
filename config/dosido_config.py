@@ -3,9 +3,11 @@ from pathlib import Path
 from glob import glob
 import os
 
+from .constants import CONFIG_FILEPATH
+
 
 class DosidoConfig(ConfigParser):
-    settings_path = ".dosido/config.ini"
+    settings_path = CONFIG_FILEPATH
 
     def __init__(self):
         super(DosidoConfig).__init__()
