@@ -1,0 +1,1 @@
+from .dosido_config import DosidoConfig
