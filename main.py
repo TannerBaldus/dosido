@@ -43,24 +43,25 @@ class Dosido(object):
             raise ValueError("No md files found")
         return file_paths
 
-    def dispatch(self, cmd_args):
+    @classmethod
+    def dispatch(cls, cmd_args):
         if cmd_args["init"]:
-            self.initialize()
+            cls.initialize()
             return
 
-        if not self.api_client:
+        if not cls.api_client:
             print("Dosido has not been configured. Run: dosido init")
             sys.exit()
 
         if cmd_args["article"]:
             file_pattern = cmd_args["<file-pattern>"]
             if cmd_args["new"]:
-                self.article_create(file_pattern, cmd_args["--publish"], cmd_args["--skip-internals"])
+                cls.article_create(file_pattern, cmd_args["--publish"], cmd_args["--skip-internals"])
             if cmd_args["update"]:
-                self.article_update(file_pattern, cmd_args["--draft"], cmd_args["--skip-internals"])
+                cls.article_update(file_pattern, cmd_args["--draft"], cmd_args["--skip-internals"])
 
         elif cmd_args["collection"]:
-            self.new_collection(cmd_args["<name>"], self.config["site_id"], cmd_args["--private"], cmd_args["--no-dir"])
+            cls.new_collection(cmd_args["<name>"], cmd_args["--private"], cmd_args["--no-dir"])
 
         print("Done")
 
@@ -69,32 +70,31 @@ class Dosido(object):
         config_setup.initialize()
 
 
-    def new_collection(self, name, site_id, private, no_dir):
-        visibility = "private" if private else "public"
+    def new_collection(cls, name, private, no_dir):
         if not no_dir:
             os.makedirs(name)
-        return self.api_client.create_collection(site_id, name, visibility)["collection"]
+        return Collection(DosidoConfig(), name).create(private)
 
-    def article_create(self, file_pattern, skip_internals, publish):
-        for p in self._get_md_files(file_pattern):
-            file_article = FileArticle(p, self.config, self.api_client)
+    def article_create(cls, file_pattern, skip_internals, publish):
+        for p in cls._get_md_files(file_pattern):
+            file_article = Article(p, DosidoConfig())
             print("Creating HelpScout article from {}".format(file_article.file_path))
             file_article.create(skip_internals, publish)
             print("created")
 
-    def article_update(self, file_pattern, is_draft, skip_internals):
-        file_paths = self._get_md_files(file_pattern)
+    def article_update(cls, file_pattern, is_draft, skip_internals):
+        file_paths = cls._get_md_files(file_pattern)
         for p in file_paths:
-            file_article = FileArticle(p, self.config, self.api_client)
+            file_article = Article(p, DosidoConfig())
             print("Updating {}".format(file_article.file_path))
             file_article.update(is_draft, skip_internals)
             print("updated")
         pass
 
+
 def main():
     args = docopt(__doc__)
     d = Dosido()
-
     try:
         d.dispatch(args)
     except ArticleDoesNotExist as e:
