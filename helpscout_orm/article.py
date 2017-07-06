@@ -5,16 +5,16 @@ import string
 from markdown import markdown
 from bs4 import BeautifulSoup
 
+
 from exceptions import *
+from .base import BaseObject
 
 
-class FileArticle(object):
+class Article(BaseObject):
 
-    def __init__(self, file_path, config, api_client):
+    def __init__(self, file_path, config):
+        super().__init__(config)
         self.file_path = file_path
-        self.image_host = config.get("site_details", "image_host")
-        self.api_client = api_client
-        self.config = config
 
         base_name = Path(file_path).stem
         self.slug = self._path_to_slug(base_name)
