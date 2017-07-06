@@ -74,7 +74,7 @@ class Article(BaseObject):
         anchor_tags = soup.find_all("a")
         for tag in anchor_tags:
             if self._is_internal_link(tag):
-                tag["href"] = FileArticle(tag["href"], self.config, self.api_client)._public_url
+                tag["href"] = Article(tag["href"], self.config)._public_url
 
     @property
     def _public_url(self):
