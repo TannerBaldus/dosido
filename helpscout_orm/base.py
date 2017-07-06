@@ -1,6 +1,7 @@
 from api import ApiClient
 
-class BaseObject():
+
+class BaseObject(object):
 
     def __init__(self, config):
         self.api_client = ApiClient(config.api_key)
