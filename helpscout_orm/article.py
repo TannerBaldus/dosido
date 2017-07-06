@@ -68,7 +68,7 @@ class Article(BaseObject):
         img_tags = soup.find_all("img")
         for tag in img_tags:
             if self._is_internal_link(tag):
-                tag["src"] = "{}/{}".format(self.image_host, tag["src"])
+                tag["src"] = "{}/{}".format(self.config.image_host, tag["src"])
 
     def _convert_internal_links(self, soup):
         anchor_tags = soup.find_all("a")
