@@ -4,6 +4,7 @@ from glob import glob
 import os
 
 from .constants import CONFIG_FILEPATH
+from exceptions import DosidoNotInitialized
 
 
 class DosidoConfig():
@@ -27,7 +28,7 @@ class DosidoConfig():
             if config_path:
                 return config_path[0]
             config_path = glob(os.path.join(dir_path, self.config_parser.settings_path))
-        raise ValueError("no path")
+        raise DosidoNotInitialized()
 
     def get_collection(self, collection_name):
         return self.config_parser.get("collections", collection_name)
@@ -58,5 +59,9 @@ class DosidoConfig():
     @image_host.setter
     def image_host(self, image_host_url):
         self.config_parser.set("site_details", "image_host", image_host_url)
+
+    def save(self):
+        with open(self.config_filepath, 'w') as configfile:
+            self.config_parser.write(configfile)
 
 

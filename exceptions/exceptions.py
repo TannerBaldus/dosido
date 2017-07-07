@@ -16,3 +16,9 @@ class CollectionNotSetup(RuntimeError):
         self.collection_name = collection_name
         super().__init__(collection_name)
 
+
+class DosidoNotInitialized(RuntimeError):
+
+    def __init__(self):
+        super().__init__("Dosido not setup")
+
