@@ -5,16 +5,17 @@ import string
 from markdown import markdown
 from bs4 import BeautifulSoup
 
+
 from exceptions import *
 
+from .base import BaseObject
 
-class FileArticle(object):
 
-    def __init__(self, file_path, config, api_client):
+class Article(BaseObject):
+
+    def __init__(self, file_path, config):
+        super().__init__(config)
         self.file_path = file_path
-        self.image_host = config.get("site_details", "image_host")
-        self.api_client = api_client
-        self.config = config
 
         base_name = Path(file_path).stem
         self.slug = self._path_to_slug(base_name)
@@ -41,7 +42,7 @@ class FileArticle(object):
     def collection_id(self):
         collection_name = Path(self.file_path).parent.name
         try:
-            return self.config.get("collections", collection_name)
+            return self.config.get_collection(collection_name)
         except NoOptionError:
             raise CollectionNotSetup(collection_name)
 
@@ -68,13 +69,13 @@ class FileArticle(object):
         img_tags = soup.find_all("img")
         for tag in img_tags:
             if self._is_internal_link(tag):
-                tag["src"] = "{}/{}".format(self.image_host, tag["src"])
+                tag["src"] = "{}/{}".format(self.config.image_host, tag["src"])
 
     def _convert_internal_links(self, soup):
         anchor_tags = soup.find_all("a")
         for tag in anchor_tags:
             if self._is_internal_link(tag):
-                tag["href"] = FileArticle(tag["href"], self.config, self.api_client)._public_url
+                tag["href"] = Article(tag["href"], self.config)._public_url
 
     @property
     def _public_url(self):
