@@ -62,9 +62,7 @@ class Dosido(object):
 
     @staticmethod
     def new_collection(name, private, no_dir):
-        if not no_dir:
-            os.makedirs(name)
-        return Collection(DosidoConfig(), name).create(private)
+        return Collection(DosidoConfig(), name).create(private, no_dir)
 
     @staticmethod
     def article_create(file_pattern, skip_internals, publish):
