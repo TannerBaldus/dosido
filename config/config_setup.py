@@ -24,7 +24,7 @@ def initialize():
     for name, collection_id in collections.items():
         config.add_collection(name, collection_id)
 
-    config.image_host = input(("What is the url that you are going to host your assets."
+    config.asset_host = input(("What is the url that you are going to host your assets."
                                "\nUsually this will be your git repo's gh pages url."))
     config.save()
 
@@ -55,7 +55,6 @@ def setup_collections(config):
         os.makedirs(name)
         another = query_user("Would you like to make another collection?", yes_no=True)
     return collections
-
 
 
 def query_user(query, yes_no=False):

@@ -53,11 +53,11 @@ class DosidoConfig():
         self.config_parser.set("site_details", "site_id", site_id)
 
     @property
-    def image_host(self):
+    def asset_host(self):
         return self.config_parser.get("site_details", "image_host")
 
-    @image_host.setter
-    def image_host(self, image_host_url):
+    @asset_host.setter
+    def asset_host(self, image_host_url):
         self.config_parser.set("site_details", "image_host", image_host_url)
 
     def save(self):
