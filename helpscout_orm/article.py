@@ -7,6 +7,7 @@ from bs4 import BeautifulSoup
 
 
 from exceptions import *
+
 from .base import BaseObject
 
 
@@ -41,7 +42,7 @@ class Article(BaseObject):
     def collection_id(self):
         collection_name = Path(self.file_path).parent.name
         try:
-            return self.config.get("collections", collection_name)
+            return self.config.get_collection(collection_name)
         except NoOptionError:
             raise CollectionNotSetup(collection_name)
 
