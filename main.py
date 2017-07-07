@@ -98,6 +98,9 @@ def main():
     except CollectionNotSetup as e:
         print("There is no collection {} in help scout. Run dosido collection new".format(e.collection_name))
 
+    except DosidoNotInitialized:
+        print("Not a dosido repository (or any of the parent directories): .dosido\nDid you run dosido init?")
+
 if __name__ == '__main__':
     main()
 
