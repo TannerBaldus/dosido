@@ -10,4 +10,6 @@ class Collection(BaseObject):
 
     def create(self, private):
         visibility = "private" if private else "public"
-        return self.api_client.create_collection(self.site_id, self.name, visibility)["collection"]
+        collection = self.api_client.create_collection(self.site_id, self.name, visibility)["collection"]
+        self.config.add_collection(self.name, collection["id"])
+        return collection
