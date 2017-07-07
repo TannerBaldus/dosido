@@ -8,10 +8,13 @@ from helpscout_orm import Collection, Site
 
 
 def initialize():
-    os.mkdir(CONFIG_DIR)
-    Path(CONFIG_FILEPATH).touch()
-    config = DosidoConfig()
+    if not os.path.isdir(CONFIG_DIR):
+        os.mkdir(CONFIG_DIR)
 
+    if not os.path.isfile(CONFIG_FILEPATH):
+        Path(CONFIG_FILEPATH).touch()
+
+    config = DosidoConfig()
     api_key = query_user("What is your api key?")
     config.api_key = api_key
 
