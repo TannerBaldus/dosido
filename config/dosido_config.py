@@ -1,10 +1,10 @@
-from configparser import ConfigParser
+from configparser import ConfigParser, NoOptionError
 from pathlib import Path
 from glob import glob
 import os
 
 from .constants import CONFIG_FILEPATH
-from exceptions import DosidoNotInitialized
+from exceptions import DosidoNotInitialized, CollectionNotSetup
 
 
 class DosidoConfig():
@@ -31,7 +31,10 @@ class DosidoConfig():
         raise DosidoNotInitialized()
 
     def get_collection(self, collection_name):
-        return self.config_parser.get("collections", collection_name)
+        try:
+            return self.config_parser.get("collections", collection_name)
+        except NoOptionError:
+            raise CollectionNotSetup(collection_name)
 
     def add_collection(self, collection_name, collection_id):
         self.config_parser.set("collections", collection_name, collection_id)
