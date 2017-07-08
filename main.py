@@ -11,17 +11,18 @@ Usage:
   dosido collection new <name> [--private --no-dir]
 
 Options:
-  -h --help                Show this screen.
-  --version                Show version.
-  -d --draft               Make the update only a draft.
-  --private                Make the collection private.
-  -s --skip-internals      don't try to link to other articles since they might not be in HelpScout yet
-  -nd --no-dir             don't make a directory for the collection
+  --help -h                   Show this screen.
+  --version                   Show version.
+  --draft -d                  Make the update only a draft.
+  --publish                   publish the article immediately.
+  --private                   Make the collection private.
+  --skip-article-refs -s      don't try to link to other articles since they might not be published in HelpScout yet
+  --no-dir -nd                don't make a directory for the collection
 """
 
 
 from glob import glob
-import os
+
 
 from docopt import docopt
 
