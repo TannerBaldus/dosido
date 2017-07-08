@@ -1,5 +1,4 @@
 from pathlib import Path
-from configparser import NoOptionError
 import string
 
 from markdown import markdown
@@ -9,6 +8,7 @@ from bs4 import BeautifulSoup
 from exceptions import *
 
 from .base import BaseObject
+from .collection import Collection
 
 
 class Article(BaseObject):
@@ -20,6 +20,7 @@ class Article(BaseObject):
         base_name = Path(file_path).stem
         self.slug = self._path_to_slug(base_name)
         self.title = string.capwords(" ".join(base_name.split("_")))
+        self.collection = Collection(self.config, self.collection_name_from_path(file_path))
 
     def create(self, skip_internals, publish):
         status = "published" if publish else "notpublished"
@@ -33,18 +34,14 @@ class Article(BaseObject):
 
     @property
     def _article_id(self):
-        article_response = self.api_client.get_article_by_slug(self.slug, collection_id=self.collection_id)
+        article_response = self.api_client.get_article_by_slug(self.slug, collection_id=self.collection.id)
         if not article_response:
             raise ArticleDoesNotExist(self.slug)
         return article_response["id"]
-
-    @property
-    def collection_id(self):
-        collection_name = Path(self.file_path).parent.name
-        try:
-            return self.config.get_collection(collection_name)
-        except NoOptionError:
-            raise CollectionNotSetup(collection_name)
+    
+    @staticmethod
+    def collection_name_from_path(file_path):
+        return Path(file_path).parent.name
 
     @staticmethod
     def _path_to_slug(path_string):
