@@ -22,15 +22,15 @@ class Article(BaseObject):
         self.title = string.capwords(" ".join(base_name.split("_")))
         self.collection = Collection(self.config, self.collection_name_from_path(file_path))
 
-    def create(self, skip_internals, publish):
+    def create(self, skip_article_refs, publish):
         status = "published" if publish else "notpublished"
-        return self.api_client.create_article(self.collection_id, self.title, self._convert_text(skip_internals),
+        return self.api_client.create_article(self.collection.id, self.title, self._convert_text(skip_article_refs),
                                        slug=self.slug, status=status)
 
-    def update(self, is_draft, skip_internals):
+    def update(self, is_draft, skip_article_refs):
         if is_draft:
-            return self.api_client.save_draft(self._article_id, self._convert_text(skip_internals))
-        return self.api_client.update_article(self._article_id, text=self._convert_text(skip_internals))
+            return self.api_client.save_draft(self._article_id, self._convert_text(skip_article_refs))
+        return self.api_client.update_article(self._article_id, text=self._convert_text(skip_article_refs))
 
     @property
     def _article_id(self):
