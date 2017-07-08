@@ -98,7 +98,7 @@ class Article(BaseObject):
 
     @staticmethod
     def _is_media_link(url):
-        return Article._is_internal_link(url) and url.starts_with("media")
+        return Article._is_internal_link(url) and url.startswith("media")
 
     @staticmethod
     def _is_internal_link(url):
