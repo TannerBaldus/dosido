@@ -64,7 +64,8 @@ class ApiClient(object):
                 return site
 
     def create_site(self, sub_domain, title):
-        return {"id": 4}
+        post_data = {"subDomain": sub_domain, "title": title, "reload": True}
+        return self.post("sites", post_data)
 
     def create_collection(self, site_id, name, visibility):
         post_data = {"name": name, "site_id": site_id, "visibility": visibility, "reload": True}
