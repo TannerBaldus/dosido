@@ -50,7 +50,7 @@ class ApiClient(object):
                                  **kwargs)
 
     def get(self, url, query_params={}, **kwargs):
-        return self._http_action(url, "GET", params=self._remove_empty_params(query_params), **kwargs)
+        return self._http_action(url, "GET", params=self._remove_empty_params(query_params, to_json=False), **kwargs)
 
     def delete(self, url, **kwargs):
         return self._http_action(url, "DELETE" **kwargs)
