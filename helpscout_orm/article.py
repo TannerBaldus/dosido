@@ -102,7 +102,7 @@ class Article(BaseObject):
 
     @staticmethod
     def _is_internal_link(url):
-        return "//" in url
+        return all(i not in url for i in ["//", "mailto"]) and Article._path_to_slug(url)
 
     @property
     def _public_url(self):
