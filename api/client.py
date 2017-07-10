@@ -50,7 +50,7 @@ class ApiClient(object):
                                  **kwargs)
 
     def get(self, url, query_params={}, **kwargs):
-        return self._http_action(url, "GET", params=self._remove_empty_params(query_params), **kwargs)
+        return self._http_action(url, "GET", params=self._remove_empty_params(query_params, to_json=False), **kwargs)
 
     def delete(self, url, **kwargs):
         return self._http_action(url, "DELETE" **kwargs)
@@ -64,7 +64,8 @@ class ApiClient(object):
                 return site
 
     def create_site(self, sub_domain, title):
-        return {"id": 4}
+        post_data = {"subDomain": sub_domain, "title": title, "reload": True}
+        return self.post("sites", post_data)
 
     def create_collection(self, site_id, name, visibility):
         post_data = {"name": name, "site_id": site_id, "visibility": visibility, "reload": True}
