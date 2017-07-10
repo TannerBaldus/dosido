@@ -82,7 +82,10 @@ class Article(BaseObject):
         """
         tags = soup.find_all(tag_type)
         for tag in tags:
-            target_url = tag[url_property]
+            target_url = tag.get(url_property)
+            if not target_url:
+                continue
+
             if self._is_media_link(target_url):
                 tag[url_property] = self._build_asset_link(target_url)
 
