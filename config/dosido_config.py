@@ -1,10 +1,10 @@
-from configparser import ConfigParser
+from configparser import ConfigParser, NoOptionError
 from pathlib import Path
 from glob import glob
 import os
 
 from .constants import CONFIG_FILEPATH
-from exceptions import DosidoNotInitialized
+from exceptions import DosidoNotInitialized, CollectionNotSetup
 
 
 class DosidoConfig():
@@ -31,7 +31,10 @@ class DosidoConfig():
         raise DosidoNotInitialized()
 
     def get_collection(self, collection_name):
-        return self.config_parser.get("collections", collection_name)
+        try:
+            return self.config_parser.get("collections", collection_name)
+        except NoOptionError:
+            raise CollectionNotSetup(collection_name)
 
     def add_collection(self, collection_name, collection_id):
         self.config_parser.set("collections", collection_name, collection_id)
@@ -53,11 +56,11 @@ class DosidoConfig():
         self.config_parser.set("site_details", "site_id", site_id)
 
     @property
-    def image_host(self):
+    def asset_host(self):
         return self.config_parser.get("site_details", "image_host")
 
-    @image_host.setter
-    def image_host(self, image_host_url):
+    @asset_host.setter
+    def asset_host(self, image_host_url):
         self.config_parser.set("site_details", "image_host", image_host_url)
 
     def save(self):

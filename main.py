@@ -6,22 +6,23 @@ HS Docs.
 
 Usage:
   dosido init
-  dosido article new <file-pattern> [--publish --skip-internals]
-  dosido article update <file-pattern> [--draft --skip-interals]
+  dosido article new <file-pattern> [--publish --skip-article-refs]
+  dosido article update <file-pattern> [--draft --skip-article-refs]
   dosido collection new <name> [--private --no-dir]
 
 Options:
-  -h --help                Show this screen.
-  --version                Show version.
-  -d --draft               Make the update only a draft.
-  --private                Make the collection private.
-  -s --skip-internals      don't try to link to other articles since they might not be in HelpScout yet
-  -nd --no-dir             don't make a directory for the collection
+  --help -h                   Show this screen.
+  --version                   Show version.
+  --draft -d                  Make the update only a draft.
+  --publish                   publish the article immediately.
+  --private                   Make the collection private.
+  --skip-article-refs -s      don't try to link to other articles since they might not be published in HelpScout yet
+  --no-dir -nd                don't make a directory for the collection
 """
 
 
 from glob import glob
-import os
+
 
 from docopt import docopt
 
@@ -47,9 +48,9 @@ class Dosido(object):
         elif cmd_args["article"]:
             file_pattern = cmd_args["<file-pattern>"]
             if cmd_args["new"]:
-                cls.article_create(file_pattern, cmd_args["--skip-internals"], cmd_args["--publish"])
+                cls.article_create(file_pattern, cmd_args["--skip-article-refs"], cmd_args["--publish"])
             if cmd_args["update"]:
-                cls.article_update(file_pattern, cmd_args["--draft"], cmd_args["--skip-internals"])
+                cls.article_update(file_pattern, cmd_args["--draft"], cmd_args["--skip-article-refs"])
 
         elif cmd_args["collection"]:
             cls.new_collection(cmd_args["<name>"], cmd_args["--private"], cmd_args["--no-dir"])
@@ -62,9 +63,7 @@ class Dosido(object):
 
     @staticmethod
     def new_collection(name, private, no_dir):
-        if not no_dir:
-            os.makedirs(name)
-        return Collection(DosidoConfig(), name).create(private)
+        return Collection(DosidoConfig(), name).create(private, no_dir)
 
     @staticmethod
     def article_create(file_pattern, skip_internals, publish):
@@ -93,8 +92,8 @@ def main():
     except ArticleDoesNotExist as e:
         print("Couldn't find article with slug {}. Did you call dosido article new first?".format(e.slug))
     except LinkedArticleNotFound as e:
-        print(("There was no public url for the linked article with slug {0}.\n"
-               "Try using --skip-internals then updating once {0} is uploaded to help scout").format(e.slug))
+        print(("There was no public url for the linked article with slug {0} in the collection {1}.\n"
+               "Try using --skip-article-refs then updating once {0} is uploaded to help scout").format(e.slug, e.collection_name))
     except CollectionNotSetup as e:
         print("There is no collection {} in help scout. Run dosido collection new".format(e.collection_name))
 
