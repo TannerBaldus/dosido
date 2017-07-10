@@ -1,7 +1,8 @@
 class LinkedArticleNotFound(RuntimeError):
 
-    def __init__(self, slug):
+    def __init__(self, slug, collection):
         self.slug = slug
+        self.collection_name = collection.name
         super().__init__(slug)
 
 
