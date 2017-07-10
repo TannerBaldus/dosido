@@ -6,8 +6,8 @@ HS Docs.
 
 Usage:
   dosido init
-  dosido article new <file-pattern> [--publish --skip-internals]
-  dosido article update <file-pattern> [--draft --skip-interals]
+  dosido article new <file-pattern> [--publish --skip-article-refs]
+  dosido article update <file-pattern> [--draft --skip-article-refs]
   dosido collection new <name> [--private --no-dir]
 
 Options:
@@ -48,9 +48,9 @@ class Dosido(object):
         elif cmd_args["article"]:
             file_pattern = cmd_args["<file-pattern>"]
             if cmd_args["new"]:
-                cls.article_create(file_pattern, cmd_args["--skip-internals"], cmd_args["--publish"])
+                cls.article_create(file_pattern, cmd_args["--skip-article-refs"], cmd_args["--publish"])
             if cmd_args["update"]:
-                cls.article_update(file_pattern, cmd_args["--draft"], cmd_args["--skip-internals"])
+                cls.article_update(file_pattern, cmd_args["--draft"], cmd_args["--skip-article-refs"])
 
         elif cmd_args["collection"]:
             cls.new_collection(cmd_args["<name>"], cmd_args["--private"], cmd_args["--no-dir"])
@@ -92,8 +92,8 @@ def main():
     except ArticleDoesNotExist as e:
         print("Couldn't find article with slug {}. Did you call dosido article new first?".format(e.slug))
     except LinkedArticleNotFound as e:
-        print(("There was no public url for the linked article with slug {0}.\n"
-               "Try using --skip-internals then updating once {0} is uploaded to help scout").format(e.slug))
+        print(("There was no public url for the linked article with slug {0} in the collection {1}.\n"
+               "Try using --skip-article-refs then updating once {0} is uploaded to help scout").format(e.slug, e.collection_name))
     except CollectionNotSetup as e:
         print("There is no collection {} in help scout. Run dosido collection new".format(e.collection_name))
 
