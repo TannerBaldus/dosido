@@ -49,8 +49,6 @@ def setup_collections(config):
         name = query_user("Provide a name for the collection.")
         private = query_user("Should this collection be private? Default is public.", yes_no=True)
         collection = Collection(config, name).create(private)
-        import pdb
-        pdb.set_trace()
         collections[name] = collection["id"]
         os.makedirs(name)
         another = query_user("Would you like to make another collection?", yes_no=True)
