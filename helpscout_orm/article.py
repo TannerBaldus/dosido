@@ -111,7 +111,7 @@ class Article(BaseObject):
     def _public_url(self):
         article_response = self.api_client.get_article_by_slug(self.slug)
         if not article_response:
-            raise LinkedArticleNotFound(self.slug)
+            raise LinkedArticleNotFound(self.slug, self.collection)
         return article_response["url"]
 
     def _convert_asset_link(self, tag_url):
