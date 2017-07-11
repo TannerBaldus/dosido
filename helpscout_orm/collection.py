@@ -24,5 +24,5 @@ class Collection(BaseObject):
 
     def _create_directory(self):
         collection_path = "{}/media".format(self.name)
-        if not os.path.isdir("name/media"):
+        if not os.path.isdir(collection_path):
             os.makedirs(collection_path)
