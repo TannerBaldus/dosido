@@ -24,13 +24,13 @@ class Article(BaseObject):
 
     def create(self, skip_article_refs, publish):
         status = "published" if publish else "notpublished"
-        return self.api_client.create_article(self.collection.id, self.title, self._convert_text(skip_article_refs),
-                                       slug=self.slug, status=status)
+        return self.api_client.create_article(self.collection.id, self.title, self.convert_text(skip_article_refs),
+                                              slug=self.slug, status=status)
 
     def update(self, is_draft, skip_article_refs):
         if is_draft:
-            return self.api_client.save_draft(self._article_id, self._convert_text(skip_article_refs))
-        return self.api_client.update_article(self._article_id, text=self._convert_text(skip_article_refs))
+            return self.api_client.save_draft(self._article_id, self.convert_text(skip_article_refs))
+        return self.api_client.update_article(self._article_id, text=self.convert_text(skip_article_refs))
 
     @property
     def _article_id(self):
@@ -38,7 +38,7 @@ class Article(BaseObject):
         if not article_response:
             raise ArticleDoesNotExist(self.slug)
         return article_response["id"]
-    
+
     @staticmethod
     def collection_name_from_path(file_path):
         return Path(file_path).parent.name
@@ -50,7 +50,7 @@ class Article(BaseObject):
         ignore_paragraph_link = use_dashes.split("#")[0]
         return ignore_paragraph_link
 
-    def _convert_text(self, skip_articles):
+    def convert_text(self, skip_articles):
         file_text = open(self.file_path).read()
         rendered_html = markdown(file_text, extensions=["codehilite", "fenced_code", "admonition", "toc"])
         return self._update_references_for_helpscout(rendered_html, skip_articles)
@@ -90,7 +90,7 @@ class Article(BaseObject):
                 tag[url_property] = self._build_asset_link(target_url)
 
             if self._is_article_link(target_url) and not skip_articles:
-                tag[url_property] = Article(target_url, self.config)._public_url
+                tag[url_property] = self._get_public_url_from_path(target_url)
 
     def _build_asset_link(self, target_url):
         return "{}/{}/{}".format(self.config.asset_host, self.collection.name, target_url)
@@ -108,8 +108,11 @@ class Article(BaseObject):
         return all(i not in url for i in ["//", "mailto"]) and Article._path_to_slug(url)
 
     @property
-    def _public_url(self):
-        article_response = self.api_client.get_article_by_slug(self.slug)
+    def public_url(self):
+        return self._get_public_url_from_path(self.file_path)
+
+    def _get_public_url_from_path(self, article_path):
+        article_response = self.api_client.get_article_by_slug(self._path_to_slug(article_path))
         if not article_response:
             raise LinkedArticleNotFound(self.slug, self.collection)
         return article_response["url"]
