@@ -20,12 +20,18 @@ def initialize():
 
     site_id = setup_site(config)
     config.site_id = site_id
+
+    config.first_header_as_title = query_user(("Would you like to use the text of the first h1 tag as the title for your articles?\n"
+                                               "The default is creating a title from underscore delimited file name from the article.\n "
+                                               "e.g. example_article-1 becomes Example Article-1\n"
+                                               ))
+
     collections = setup_collections(config)
     for name, collection_id in collections.items():
         config.add_collection(name, collection_id)
 
     config.asset_host = input(("What is the url that you are going to host your assets."
-                               "\nUsually this will be your git repo's gh pages url."))
+                               "\nUsually this will be your git repo's gh pages url.\n"))
     config.save()
 
 
