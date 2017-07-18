@@ -122,9 +122,13 @@ class Article(BaseObject):
 
     @property
     def _public_url(self):
-        article_response = self.api_client.get_article_by_slug(self.slug)
+        return self._get_public_url_from_path(self.file_path)
+
+    def _get_public_url_from_path(self, article_path):
+        linked_article = Article(article_path, self.config)
+        article_response = self.api_client.get_article_by_slug(linked_article.slug)
         if not article_response:
-            raise LinkedArticleNotFound(self.slug, self.collection)
+            raise LinkedArticleNotFound(linked_article.slug, linked_article.collection)
         return article_response["url"]
 
     def _convert_asset_link(self, tag_url):
