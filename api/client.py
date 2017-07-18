@@ -106,9 +106,9 @@ class ApiClient(object):
     def delete_article(self, article_id):
         return self.delete("articles/{}".format(article_id))
 
-    def update_article(self, article_id, text=None, status=None, slug=None, categories=None, related=None):
+    def update_article(self, article_id, text=None, name=None, status=None, slug=None, categories=None, related=None):
         post_data = {"text": text, "status": status, "slug": slug, "categories": categories,
-                     "related": related, "reload": True}
+                     "related": related, "reload": True, "name": name}
         return self.put("articles/{}".format(article_id), post_data)["article"]
 
     def save_draft(self, article_id, text):
