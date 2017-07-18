@@ -27,7 +27,7 @@ class DosidoConfig():
         for dir_path in Path(os.getcwd()).parents:
             if config_path:
                 return config_path[0]
-            config_path = glob(os.path.join(dir_path, self.config_parser.settings_path))
+            config_path = glob(os.path.join(dir_path, self.settings_path))
         raise DosidoNotInitialized()
 
     def get_collection(self, collection_name):
@@ -66,5 +66,14 @@ class DosidoConfig():
     def save(self):
         with open(self.config_filepath, 'w') as configfile:
             self.config_parser.write(configfile)
+
+    @property
+    def first_header_as_title(self):
+        return self.config_parser.get("site_details", "first_header_as_title")
+
+    @first_header_as_title.setter
+    def first_header_as_title(self, first_header_as_title):
+        self.config_parser.set("site_details", "first_header_as_title", first_header_as_title)
+
 
 
