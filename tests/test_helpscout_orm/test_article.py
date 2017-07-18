@@ -3,12 +3,15 @@ import pytest
 from config import DosidoConfig
 from helpscout_orm import Article
 
+ARTICLE_ID = 1
+COLLECTION_ID = 2
+
 
 @pytest.fixture
 def mock_config(mocker):
     mock_config = mocker.patch('config.DosidoConfig')
     mock_config.asset_host = "http://test.com"
-    mock_config.get_collection.return_value = 1
+    mock_config.get_collection.return_value = COLLECTION_ID
     return mock_config
 
 
@@ -16,7 +19,7 @@ def mock_config(mocker):
 def mock_api_client(mocker):
     client = mocker.patch("api.ApiClient")
     article_url = "helpscout.com/article"
-    article = {"url": article_url, "id": 1}
+    article = {"url": article_url, "id": ARTICLE_ID}
     client.get_article_by_slug.return_value = article
     client._http_action.return_value = {"article": article, "articles": {"items": [article]}}
     return client
@@ -47,6 +50,38 @@ def test_article_info(mocker,  mock_config, mock_api_client, article_path, slug,
     assert article.slug == slug
     assert article.title == title
     assert article.collection.name == collection_name
+
+@pytest.mark.parametrize("skip_article_refs, publish,", [
+    ("True", "False"),
+    ("False", "True")
+])
+def test_article_create(mocker, mock_config, mock_api_client, skip_article_refs, publish):
+    article_text = "hello world"
+    article = Article("foo/bar", mock_config)
+    article.api_client = mock_api_client
+    article.convert_text = mocker.MagicMock(return_value=article_text)
+    article.create(skip_article_refs, publish)
+    status = "published" if publish else "notpublished"
+    mock_api_client.create_article.assert_called_with(COLLECTION_ID, "Bar", article_text, slug="bar", status=status)
+    article.convert_text.assert_called_with(skip_article_refs)
+
+
+@pytest.mark.parametrize("is_draft, skip_article_refs,", [
+    ("True", "False"),
+    ("False", "True")
+])
+def test_article_update(mocker, mock_config, mock_api_client, is_draft, skip_article_refs):
+    article_text = "hello world"
+    article = Article("foo/bar", mock_config)
+    article.api_client = mock_api_client
+    article.convert_text = mocker.MagicMock(return_value=article_text)
+    article.update(skip_article_refs, skip_article_refs)
+    if is_draft:
+        mock_api_client.save_draft.assert_called_with(ARTICLE_ID, article_text)
+    else:
+        mock_api_client.update_article.assert_called_with(ARTICLE_ID, text=article_text)
+    article.convert_text.assert_called_with(skip_article_refs)
+
 
 
 
