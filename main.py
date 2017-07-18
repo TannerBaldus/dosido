@@ -6,18 +6,19 @@ HS Docs.
 
 Usage:
   dosido init
-  dosido article new <file-pattern> [--publish --skip-article-refs]
+  dosido article new <file-pattern> [--publish --skip-article-refs --ignore-existing]
   dosido article update <file-pattern> [--draft --skip-article-refs]
   dosido collection new <name> [--private --no-dir]
 
 Options:
-  --help -h                   Show this screen.
-  --version                   Show version.
-  --draft -d                  Make the update only a draft.
-  --publish                   publish the article immediately.
-  --private                   Make the collection private.
-  --skip-article-refs -s      don't try to link to other articles since they might not be published in HelpScout yet
-  --no-dir -nd                don't make a directory for the collection
+  --help -h                       Show this screen.
+  --version                       Show version.
+  --draft -d                      Make the update only a draft.
+  --publish -pb                   publish the article immediately.
+  --private -pr                   Make the collection private.
+  --skip-article-refs -s          don't try to link to other articles since they might not be published in HelpScout yet
+  --no-dir -nd                    don't make a directory for the collection
+  --ignore-existing -i            skip article already exists errors on article creation
 """
 
 
@@ -48,7 +49,7 @@ class Dosido(object):
         elif cmd_args["article"]:
             file_pattern = cmd_args["<file-pattern>"]
             if cmd_args["new"]:
-                cls.article_create(file_pattern, cmd_args["--skip-article-refs"], cmd_args["--publish"])
+                cls.article_create(file_pattern, cmd_args["--skip-article-refs"], cmd_args["--publish"], cmd_args["--ignore-existing"])
             if cmd_args["update"]:
                 cls.article_update(file_pattern, cmd_args["--draft"], cmd_args["--skip-article-refs"])
 
@@ -66,11 +67,17 @@ class Dosido(object):
         return Collection(DosidoConfig(), name).create(private, no_dir)
 
     @staticmethod
-    def article_create(file_pattern, skip_internals, publish):
+    def article_create(file_pattern, skip_internals, publish, ignore_existing):
         for p in Dosido._get_md_files(file_pattern):
             file_article = Article(p, DosidoConfig())
             print("Creating HelpScout article from {}".format(file_article.file_path))
-            file_article.create(skip_internals, publish)
+            try:
+                file_article.create(skip_internals, publish)
+            except ArticleAlreadyExists:
+                if not ignore_existing:
+                    raise
+                print("Article already exists")
+                continue
             print("created")
 
     @staticmethod
@@ -99,6 +106,9 @@ def main():
 
     except DosidoNotInitialized:
         print("Not a dosido repository (or any of the parent directories): .dosido\nDid you run dosido init?")
+
+    except ArticleAlreadyExists as e:
+        print(e)
 
 if __name__ == '__main__':
     main()

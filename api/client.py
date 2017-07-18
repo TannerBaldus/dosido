@@ -1,5 +1,6 @@
 import requests
 import json
+from exceptions import *
 
 
 class ApiClient(object):
@@ -37,13 +38,20 @@ class ApiClient(object):
         if action_name == "DELETE":
             response = self.session.delete(url, **kwargs)
 
-
         if not response.ok:
-            raise RuntimeError("API raised code {} with message {}".format(response.status_code, response.text))
+            self._handle_errors(response)
 
         if is_response_json:
             return response.json()
         return response.text
+
+    @staticmethod
+    def _handle_errors(response):
+        response_body = response.json()
+        if "Article name is already in use" in response_body.get("name", [""])[0]:
+            raise ArticleAlreadyExists(response_body.get("name")[0])
+        raise RuntimeError("API raised code {} with message {}".format(response.status_code, response.text))
+
 
     def post(self, url, post_data, **kwargs):
         return self._http_action(url, "POST", data=self._remove_empty_params(post_data,),
@@ -98,9 +106,9 @@ class ApiClient(object):
     def delete_article(self, article_id):
         return self.delete("articles/{}".format(article_id))
 
-    def update_article(self, article_id, text=None, status=None, slug=None, categories=None, related=None):
+    def update_article(self, article_id, text=None, name=None, status=None, slug=None, categories=None, related=None):
         post_data = {"text": text, "status": status, "slug": slug, "categories": categories,
-                     "related": related, "reload": True}
+                     "related": related, "reload": True, "name": name}
         return self.put("articles/{}".format(article_id), post_data)["article"]
 
     def save_draft(self, article_id, text):
