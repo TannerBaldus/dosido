@@ -16,21 +16,26 @@ class Article(BaseObject):
     def __init__(self, file_path, config):
         super().__init__(config)
         self.file_path = file_path
-
-        base_name = Path(file_path).stem
-        self.slug = self._path_to_slug(base_name)
-        self.title = string.capwords(" ".join(base_name.split("_")))
+        self.slug = self._path_to_slug(file_path)
         self.collection = Collection(self.config, self.collection_name_from_path(file_path))
 
     def create(self, skip_article_refs, publish):
         status = "published" if publish else "notpublished"
-        return self.api_client.create_article(self.collection.id, self.title, self._convert_text(skip_article_refs),
+        return self.api_client.create_article(self.collection.id, self.title, self.convert_text(skip_article_refs),
                                        slug=self.slug, status=status)
 
     def update(self, is_draft, skip_article_refs):
         if is_draft:
-            return self.api_client.save_draft(self._article_id, self._convert_text(skip_article_refs))
-        return self.api_client.update_article(self._article_id, text=self._convert_text(skip_article_refs))
+            return self.api_client.save_draft(self._article_id, self.convert_text(skip_article_refs))
+        return self.api_client.update_article(self._article_id, text=self.convert_text(skip_article_refs),
+                                              name=self.title)
+
+    @property
+    def title(self):
+        if self.config.first_header_as_title:
+            soup = BeautifulSoup(self._md_to_html(), "html.parser")
+            return soup.find("h1").text
+        return string.capwords(" ".join(self.slug.split("-")))
 
     @property
     def _article_id(self):
