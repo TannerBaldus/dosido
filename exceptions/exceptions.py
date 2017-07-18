@@ -12,6 +12,11 @@ class ArticleDoesNotExist(RuntimeError):
         super().__init__(slug)
 
 
+class ArticleAlreadyExists(RuntimeError):
+    def __init__(self, message):
+        super().__init__(message)
+
+
 class CollectionNotSetup(RuntimeError):
     def __init__(self, collection_name):
         self.collection_name = collection_name
