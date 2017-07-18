@@ -21,8 +21,7 @@ class Article(BaseObject):
 
     def create(self, skip_article_refs, publish):
         status = "published" if publish else "notpublished"
-        return self.api_client.create_article(self.collection.id, self.title, self.convert_text(skip_article_refs),
-                                       slug=self.slug, status=status)
+        return self.api_client.create_article(self.collection.id, self.title, self.convert_text(skip_article_refs), slug=self.slug, status=status)
 
     def update(self, is_draft, skip_article_refs):
         if is_draft:
@@ -43,7 +42,7 @@ class Article(BaseObject):
         if not article_response:
             raise ArticleDoesNotExist(self.slug)
         return article_response["id"]
-    
+
     @staticmethod
     def collection_name_from_path(file_path):
         return Path(file_path).parent.name
@@ -103,7 +102,7 @@ class Article(BaseObject):
                 tag[url_property] = self._build_asset_link(target_url)
 
             if self._is_article_link(target_url) and not skip_articles:
-                tag[url_property] = Article(target_url, self.config)._public_url
+                tag[url_property] = self._get_public_url_from_path(target_url)
 
     def _build_asset_link(self, target_url):
         return "{}/{}/{}".format(self.config.asset_host, self.collection.name, target_url)
@@ -120,7 +119,6 @@ class Article(BaseObject):
     def _is_internal_link(url):
         return all(i not in url for i in ["//", "mailto"]) and Article._path_to_slug(url)
 
-    @property
     def _public_url(self):
         return self._get_public_url_from_path(self.file_path)
 

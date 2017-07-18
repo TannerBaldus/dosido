@@ -56,7 +56,6 @@ def setup_collections(config):
         private = query_user("Should this collection be private? Default is public.", yes_no=True)
         collection = Collection(config, name).create(private)
         collections[name] = collection["id"]
-        os.makedirs(name)
         another = query_user("Would you like to make another collection?", yes_no=True)
     return collections
 
