@@ -45,7 +45,8 @@ class Article(BaseObject):
 
     @staticmethod
     def _path_to_slug(path_string):
-        use_dashes = path_string.replace("_", "-")
+        article_name = Path(path_string).stem
+        use_dashes = article_name.replace("_", "-")
         # for when an article links to another's specific paragraph like /heroes/squirrel_girl#origins
         ignore_paragraph_link = use_dashes.split("#")[0]
         return ignore_paragraph_link
