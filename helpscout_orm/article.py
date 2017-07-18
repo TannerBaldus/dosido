@@ -51,24 +51,31 @@ class Article(BaseObject):
         ignore_paragraph_link = use_dashes.split("#")[0]
         return ignore_paragraph_link
 
-    def _convert_text(self, skip_articles):
+    def _md_to_html(self):
         file_text = open(self.file_path).read()
         rendered_html = markdown(file_text, extensions=["codehilite", "fenced_code", "admonition", "toc"])
-        return self._update_references_for_helpscout(rendered_html, skip_articles)
+        return rendered_html
 
-    def _update_references_for_helpscout(self, html, skip_articles):
+    def convert_text(self, skip_articles):
+        soup = BeautifulSoup(self._md_to_html(), "html.parser")
+        if self.config.first_header_as_title:
+            soup.find("h1").extract()
+
+        updated_references = self._update_references_for_helpscout(soup, skip_articles)
+        return str(updated_references)
+
+    def _update_references_for_helpscout(self, soup, skip_articles):
         """
         We want the author to continue writing md on github as normal. Which means relative links. So we convert 
         these to markdown friendly here.
         
-        :param html: the starting html
+        :param html: a beautiful soup obj
         :param skip_articles: ool to skip looking for articles that aren't published so don't have a public url yet 
         :return: the converted htnl
         """
-        soup = BeautifulSoup(html,  "html.parser")
         self.convert_reference_tags(soup, "img", "src", skip_articles)
         self.convert_reference_tags(soup, "a", "href", skip_articles)
-        return str(soup)
+        return soup
 
     def convert_reference_tags(self, soup, tag_type, url_property, skip_articles=False):
         """
