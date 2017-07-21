@@ -17,6 +17,7 @@ class Article(BaseObject):
         super().__init__(config)
         self.file_path = file_path
         self.slug = self._path_to_slug(file_path)
+        self.title = string.capwords(" ".join(self.slug.split("-")))
         self.collection = Collection(self.config, self.collection_name_from_path(file_path))
 
     def create(self, skip_article_refs, publish):
@@ -28,13 +29,6 @@ class Article(BaseObject):
             return self.api_client.save_draft(self._article_id, self.convert_text(skip_article_refs))
         return self.api_client.update_article(self._article_id, text=self.convert_text(skip_article_refs),
                                               name=self.title)
-
-    @property
-    def title(self):
-        if self.config.first_header_as_title:
-            soup = BeautifulSoup(self._md_to_html(), "html.parser")
-            return soup.find("h1").text
-        return string.capwords(" ".join(self.slug.split("-")))
 
     @property
     def _article_id(self):
@@ -62,9 +56,6 @@ class Article(BaseObject):
 
     def convert_text(self, skip_articles):
         soup = BeautifulSoup(self._md_to_html(), "html.parser")
-        if self.config.first_header_as_title:
-            soup.find("h1").extract()
-
         updated_references = self._update_references_for_helpscout(soup, skip_articles)
         return str(updated_references)
 
