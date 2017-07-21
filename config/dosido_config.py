@@ -67,13 +67,5 @@ class DosidoConfig():
         with open(self.config_filepath, 'w') as configfile:
             self.config_parser.write(configfile)
 
-    @property
-    def first_header_as_title(self):
-        return self.config_parser.get("site_details", "first_header_as_title")
-
-    @first_header_as_title.setter
-    def first_header_as_title(self, first_header_as_title):
-        self.config_parser.set("site_details", "first_header_as_title", first_header_as_title)
-
 
 
