@@ -1,7 +1,6 @@
 import pytest
 
-from config import DosidoConfig
-from helpscout_orm import Article
+from dosido.helpscout_orm import Article
 
 ARTICLE_ID = 1
 COLLECTION_ID = 2

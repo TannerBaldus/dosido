@@ -1,10 +1,9 @@
-from pathlib import Path
 from distutils.util import strtobool
-import os
+from pathlib import Path
 
+from dosido.helpscout_orm import Collection, Site
 from .constants import *
 from .dosido_config import DosidoConfig
-from helpscout_orm import Collection, Site
 
 
 def initialize():

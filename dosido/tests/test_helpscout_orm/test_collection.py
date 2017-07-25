@@ -1,6 +1,7 @@
 import pytest
 
-from helpscout_orm import Collection
+from dosido.helpscout_orm import Collection
+
 
 @pytest.fixture
 def mock_config(mocker):

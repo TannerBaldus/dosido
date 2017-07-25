@@ -1,6 +1,8 @@
-import requests
 import json
-from exceptions import *
+
+import requests
+
+from dosido.exceptions import *
 
 
 class ApiClient(object):

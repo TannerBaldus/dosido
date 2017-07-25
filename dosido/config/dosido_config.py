@@ -1,10 +1,10 @@
-from configparser import ConfigParser, NoOptionError
-from pathlib import Path
-from glob import glob
 import os
+from configparser import ConfigParser, NoOptionError
+from glob import glob
+from pathlib import Path
 
+from dosido.exceptions import DosidoNotInitialized, CollectionNotSetup
 from .constants import CONFIG_FILEPATH
-from exceptions import DosidoNotInitialized, CollectionNotSetup
 
 
 class DosidoConfig():
