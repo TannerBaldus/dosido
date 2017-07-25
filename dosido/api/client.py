@@ -2,7 +2,7 @@ import json
 
 import requests
 
-from dosido.exceptions import *
+from exceptions import *
 
 
 class ApiClient(object):
