@@ -3,7 +3,7 @@ from configparser import ConfigParser, NoOptionError
 from glob import glob
 from pathlib import Path
 
-from exceptions import DosidoNotInitialized, CollectionNotSetup
+from dosido.exceptions import DosidoNotInitialized, CollectionNotSetup
 from .constants import CONFIG_FILEPATH
 
 

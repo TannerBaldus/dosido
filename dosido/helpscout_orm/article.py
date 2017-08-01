@@ -4,7 +4,7 @@ from pathlib import Path
 from bs4 import BeautifulSoup
 from markdown import markdown
 
-from exceptions import *
+from dosido.exceptions import *
 from .base import BaseObject
 from .collection import Collection
 

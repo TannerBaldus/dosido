@@ -1,7 +1,7 @@
 from distutils.util import strtobool
 from pathlib import Path
 
-from helpscout_orm import Collection, Site
+from dosido.helpscout_orm import Collection, Site
 from .constants import *
 from .dosido_config import DosidoConfig
 

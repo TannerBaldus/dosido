@@ -24,10 +24,10 @@ Options:
 
 from glob import glob
 
-from config import DosidoConfig, config_setup
+from .config import DosidoConfig, config_setup
 from docopt import docopt
-from exceptions import *
-from helpscout_orm import Article, Collection
+from .exceptions import *
+from .helpscout_orm import Article, Collection
 
 
 class Dosido(object):
