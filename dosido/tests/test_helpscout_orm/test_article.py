@@ -42,6 +42,7 @@ def test_convert_text(mocker, mock_api_client, mock_config, test_text, skip_arti
 @pytest.mark.parametrize("article_path, slug, title, collection_name", [
     ("foo/bar/gar.md", "gar", "Gar", "bar"),
     ("bar/test_file.md", "test-file", "Test File", "bar"),
+    ("bar/test_file_with_(stuff).md", "test-file-with-stuff", "bar")
 ])
 def test_article_info(mocker,  mock_config, mock_api_client, article_path, slug, title, collection_name):
     article = Article(article_path, mock_config)
