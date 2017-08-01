@@ -22,6 +22,13 @@ class Collection(BaseObject):
             self._create_directory()
         return collection
 
+    def get_or_create(self, private, no_dir=True):
+        collection = self.api_client.get_collection_by_slug(self.name)
+        if collection:
+            self.config.add_collection(self.name, collection["id"])
+            return collection
+        return self.create(private, no_dir)
+
     def _create_directory(self):
         collection_path = "{}/media".format(self.name)
         if not os.path.isdir(collection_path):
