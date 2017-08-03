@@ -1,10 +1,9 @@
-from pathlib import Path
 from distutils.util import strtobool
-import os
+from pathlib import Path
 
+from dosido.helpscout_orm import Collection, Site
 from .constants import *
 from .dosido_config import DosidoConfig
-from helpscout_orm import Collection, Site
 
 
 def initialize():
@@ -17,18 +16,9 @@ def initialize():
     config = DosidoConfig()
     api_key = query_user("What is your api key?")
     config.api_key = api_key
-
     site_id = setup_site(config)
     config.site_id = site_id
-
-    config.first_header_as_title = query_user(("Would you like to use the text of the first h1 tag as the title for your articles?\n"
-                                               "The default is creating a title from underscore delimited file name from the article.\n "
-                                               "e.g. example_article-1 becomes Example Article-1\n"
-                                               ))
-
-    collections = setup_collections(config)
-    for name, collection_id in collections.items():
-        config.add_collection(name, collection_id)
+    setup_collections(config)
 
     config.asset_host = input(("What is the url that you are going to host your assets."
                                "\nUsually this will be your git repo's gh pages url.\n"))
@@ -54,7 +44,8 @@ def setup_collections(config):
     while another:
         name = query_user("Provide a name for the collection.")
         private = query_user("Should this collection be private? Default is public.", yes_no=True)
-        collection = Collection(config, name).create(private)
+        no_dir = query_user("Do you want the directory for this folder created now?", yes_no=True)
+        collection = Collection(config, name).get_or_create(private, no_dir)
         collections[name] = collection["id"]
         another = query_user("Would you like to make another collection?", yes_no=True)
     return collections

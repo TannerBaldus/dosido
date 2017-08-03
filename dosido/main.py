@@ -23,20 +23,19 @@ Options:
 
 
 from glob import glob
+import os
 
-
+from .config import DosidoConfig, config_setup
 from docopt import docopt
-
-from config import DosidoConfig, config_setup
-from helpscout_orm import Article, Collection
-from exceptions import *
+from .exceptions import *
+from .helpscout_orm import Article, Collection
 
 
 class Dosido(object):
     
     @staticmethod
     def _get_md_files(file_pattern):
-        file_paths = [i for i in glob(file_pattern) if i.endswith(".md")]
+        file_paths = [os.path.abspath(i) for i in glob(file_pattern) if i.endswith(".md")]
         if not file_paths:
             raise ValueError("No md files found")
         return file_paths

@@ -1,7 +1,6 @@
 import pytest
 
-from config import DosidoConfig
-from helpscout_orm import Article
+from dosido.helpscout_orm import Article
 
 ARTICLE_ID = 1
 COLLECTION_ID = 2
@@ -9,7 +8,7 @@ COLLECTION_ID = 2
 
 @pytest.fixture
 def mock_config(mocker):
-    mock_config = mocker.patch('config.DosidoConfig')
+    mock_config = mocker.patch('dosido.config.DosidoConfig')
     mock_config.asset_host = "http://test.com"
     mock_config.get_collection.return_value = COLLECTION_ID
     return mock_config
@@ -17,7 +16,7 @@ def mock_config(mocker):
 
 @pytest.fixture
 def mock_api_client(mocker):
-    client = mocker.patch("api.ApiClient")
+    client = mocker.patch("dosido.api.ApiClient")
     article_url = "helpscout.com/article"
     article = {"url": article_url, "id": ARTICLE_ID}
     client.get_article_by_slug.return_value = article
@@ -43,6 +42,7 @@ def test_convert_text(mocker, mock_api_client, mock_config, test_text, skip_arti
 @pytest.mark.parametrize("article_path, slug, title, collection_name", [
     ("foo/bar/gar.md", "gar", "Gar", "bar"),
     ("bar/test_file.md", "test-file", "Test File", "bar"),
+    ("bar/test_file_with_(stuff).md", "test-file-with-stuff", "bar")
 ])
 def test_article_info(mocker,  mock_config, mock_api_client, article_path, slug, title, collection_name):
     article = Article(article_path, mock_config)

@@ -1,6 +1,8 @@
-import requests
 import json
-from exceptions import *
+
+import requests
+
+from dosido.exceptions import *
 
 
 class ApiClient(object):
@@ -80,7 +82,7 @@ class ApiClient(object):
         return self.post("collections", post_data)
 
     def get_collection_by_slug(self, collection_slug):
-        collections = self.get("collections")["items"]
+        collections = self.get("collections")["collections"]["items"]
         for collection in collections:
             if collection["slug"] == collection_slug:
                 return collection

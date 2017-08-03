@@ -1,4 +1,4 @@
-from api import ApiClient
+from dosido.api import ApiClient
 
 
 class BaseObject(object):
