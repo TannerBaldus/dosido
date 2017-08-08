@@ -38,13 +38,21 @@ Dosido has three main uses:
 2. Publishing new articles to HelpScout.
 3. Updating already existing articles with new content.
 
-### Create a New Collection
+### Create a Dosido Project
 
-Use `dosido init` to create a new HelpScout collection. When you do, you'll get a series of prompts.
+Use `dosido init` to create a new HelpScout collection. This will also created a config file at `.dosido/config.ini`.
+
+The config file includes:
+* The Helpscout API key
+* Collection names and keys
+* Site ID value
+* The Image Host URL
+
+When you create a Dosido project, you'll get a series of prompts to walk you through that process.
 
 _Before using Dosido, you'll need a HelpScout API key. You can get this from HelpScout [here](https://secure.helpscout.net/users/authentication/59508/api-keys)._
 
-**Complete these steps to create a new collection.**
+**Complete these steps to create a new Dosido project.**
 
 1. `dosido init`
 _What is your API key?_
@@ -61,7 +69,7 @@ _Would you like to make another collection? (yes/no)_
 7. Choosing yes will loop you back to step 4. Choose no to finish.
 _What is the url that you are going to host your assets.
 Usually this will be your git repository's Github pages url._
-8. Enter the URL where you're hosting your Markdown files.
+8. Enter the URL where you're hosting your Markdown files. NOTE: Use `http://docs.meridianapps.com`.
 
 ### Publish New Articles
 
@@ -76,6 +84,8 @@ The new article will be published and visible to anyone.
 
 _--skip-article-refs_ or _-s_
 Ignores internal links in articles, because those articles might not be in HelpScout.
+
+_NOTE: Links to other articles will fail if they're not published on Help Scout. Help Scout article URLs can't be determined by name alone._
 
 _--ignore-existing_ or _-i_
 When you're publishing an entire directory of Markdown files, use this flag to ignore articles that have already been published to HelpScout.
