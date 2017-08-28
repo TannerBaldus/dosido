@@ -115,4 +115,4 @@ class ApiClient(object):
 
     def save_draft(self, article_id, text):
         post_data = {"text": text}
-        return self.post(url="articles/{}/drafts".format(article_id), post_data=post_data, is_response_json=False)
+        return self.put(url="articles/{}/drafts".format(article_id), post_data=post_data, is_response_json=False)
