@@ -22,11 +22,12 @@ class Article(BaseObject):
         status = "published" if publish else "notpublished"
         return self.api_client.create_article(self.collection.id, self.title, self.convert_text(skip_article_refs), slug=self.slug, status=status)
 
-    def update(self, is_draft, skip_article_refs):
+    def update(self, is_draft, skip_article_refs, unpublish):
+        status = "notpublished" if unpublish else None
         if is_draft:
             return self.api_client.save_draft(self._article_id, self.convert_text(skip_article_refs))
         return self.api_client.update_article(self._article_id, text=self.convert_text(skip_article_refs),
-                                              name=self.title)
+                                              name=self.title, status=status)
 
     @property
     def _article_id(self):
