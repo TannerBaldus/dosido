@@ -1,15 +1,15 @@
 class LinkedArticleNotFound(RuntimeError):
 
-    def __init__(self, slug, collection):
-        self.slug = slug
+    def __init__(self, title, collection):
+        self.title = title
         self.collection_name = collection.name
-        super().__init__(slug)
+        super().__init__(title)
 
 
 class ArticleDoesNotExist(RuntimeError):
-    def __init__(self, slug):
-        self.slug = slug
-        super().__init__(slug)
+    def __init__(self, title):
+        self.title = title
+        super().__init__(title)
 
 
 class ArticleAlreadyExists(RuntimeError):

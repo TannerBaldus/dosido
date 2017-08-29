@@ -20,7 +20,7 @@ def mock_api_client(mocker):
     client = mocker.patch("dosido.api.ApiClient")
     article_url = "helpscout.com/article"
     article = {"url": article_url, "id": ARTICLE_ID}
-    client.get_article_by_slug.return_value = article
+    client.get_article_by_title.return_value = article
     client._http_action.return_value = {"article": article, "articles": {"items": [article]}}
     return client
 
@@ -29,8 +29,9 @@ def mock_api_client(mocker):
     ("[testing](http://google.com)", False, '<a href="http://google.com">testing</a>'),
     ("[foo](media/foo.png)", False, '<a href="http://test.com/bar/media/foo.png">foo</a>'),
     ("[bar](#some-paragraph)", False, '<a href="#some-paragraph">bar</a>'),
-    ("[bar](other/article.md)", True,'<a href="other/article.md">bar</a>'),
-    ("[bar](other/article.md)", False,'<a href="helpscout.com/article">bar</a>')
+    ("[bar](other/article.md)", True, '<a href="other/article.md">bar</a>'),
+    ("[bar](other/article.md)", False, '<a href="helpscout.com/article">bar</a>'),
+    ("[bar](other/article.md#test-paragraph)", False, '<a href="helpscout.com/article">bar</a>'),
 ])
 def test_convert_text(mocker, mock_api_client, mock_config, test_text, skip_articles, expected):
     file_path = "bar/foo.md"
@@ -40,16 +41,15 @@ def test_convert_text(mocker, mock_api_client, mock_config, test_text, skip_arti
     assert article.convert_text(skip_articles) == "<p>{}</p>".format(expected)
 
 
-@pytest.mark.parametrize("article_path, slug, title, collection_name", [
-    ("foo/bar/gar.md", "gar", "gar", "bar"),
-    ("bar/test_file.md", "test-file", "test file", "bar"),
-    ("bar/maintain_Capitals.md", "maintain-capitals", "maintain Capitals", "bar"),
-    ("bar/test_file_with_(stuff).md", "test-file-with-stuff", "test file with (stuff)", "bar")
+@pytest.mark.parametrize("article_path, title, collection_name", [
+    ("foo/bar/gar.md", "gar", "bar"),
+    ("bar/test_file.md",  "test file", "bar"),
+    ("bar/maintain_Capitals.md", "maintain Capitals", "bar"),
+    ("bar/test_file_with_(stuff).md", "test file with (stuff)", "bar")
 ])
-def test_article_info(mocker,  mock_config, mock_api_client, article_path, slug, title, collection_name):
+def test_article_info(mocker,  mock_config, mock_api_client, article_path, title, collection_name):
     article = Article(article_path, mock_config)
     article.api_client = mock_api_client
-    assert article.slug == slug
     assert article.title == title
     assert article.collection.name == collection_name
 
@@ -63,7 +63,7 @@ def test_article_create(mocker, mock_config, mock_api_client, skip_article_refs,
     article_text = "hello world"
     article = Article("foo/bar", mock_config)
     article.api_client = mock_api_client
-    mock_api_client.get_article_by_slug = mocker.MagicMock(return_value={"id": ARTICLE_ID} if article_exists else None)
+    mock_api_client.get_article_by_title = mocker.MagicMock(return_value={"id": ARTICLE_ID} if article_exists else None)
     article.convert_text = mocker.MagicMock(return_value=article_text)
 
     status = "published" if publish else "notpublished"
@@ -74,7 +74,7 @@ def test_article_create(mocker, mock_config, mock_api_client, skip_article_refs,
             article.create(skip_article_refs, publish)
     else:
         article.create(skip_article_refs, publish)
-        mock_api_client.create_article.assert_called_with(COLLECTION_ID, "bar", article_text, slug="bar", status=status)
+        mock_api_client.create_article.assert_called_with(COLLECTION_ID, "bar", article_text, status=status)
         article.convert_text.assert_called_with(skip_article_refs)
 
 
@@ -88,7 +88,7 @@ def test_article_update(mocker, mock_config, mock_api_client, is_draft, skip_art
     article_text = "hello world"
     article = Article("foo/bar", mock_config)
     article.api_client = mock_api_client
-    mock_api_client.get_article_by_slug = mocker.MagicMock(return_value={"id": ARTICLE_ID} if article_exists else None)
+    mock_api_client.get_article_by_title = mocker.MagicMock(return_value={"id": ARTICLE_ID} if article_exists else None)
     article.convert_text = mocker.MagicMock(return_value=article_text)
     status = "notpublished" if unpublish else None
 
