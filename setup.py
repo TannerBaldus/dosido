@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(name='dosido',
-      version='1.0',
+      version='1.0.3',
       description='Manage HelpScout knowledge base with VCS markdown',
       url='https://github.com/TannerBaldus/dosido',
       author='Tanner Baldus',
