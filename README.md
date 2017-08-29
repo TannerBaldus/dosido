@@ -1,5 +1,5 @@
-# DOSIDO
-### A CLI to maintain your helpscout knowledge base with markdown
+# dosido
+A CLI for using markdown and github pages to publish docs on helpscout
 
 ## Installation
 `pip3 install dosido`
@@ -29,6 +29,16 @@ So we will mirror this in your project structure:
 |   ├── another_article_name.md
 |   └── header.html
 ```
+
+### Article Names
+Filenames are  mapped to be the HelpScout article names. 
+Underscores will be converted to spaces, all other punctuation will be left alone.
+
+The article titles case will be maintained on display of article titles but is case insensitive for article identification.
+
+For example, if you create `rest_api.md` on HelpScout the title will show as `rest api`. However if you change the name 
+to `Rest_API` the title on HelpScout will be changed to `Rest API` but you can continue to use that file to reference the 
+same article.
 
 ## Usage
 

@@ -7,7 +7,7 @@ HS Docs.
 Usage:
   dosido init
   dosido article new <file-pattern> [--publish --skip-article-refs --ignore-existing]
-  dosido article update <file-pattern> [--draft --skip-article-refs]
+  dosido article update <file-pattern> [--draft --skip-article-refs --unpublish]
   dosido collection new <name> [--private --no-dir]
 
 Options:
@@ -19,6 +19,7 @@ Options:
   --skip-article-refs -s          don't try to link to other articles since they might not be published in HelpScout yet
   --no-dir -nd                    don't make a directory for the collection
   --ignore-existing -i            skip article already exists errors on article creation
+  --unpublish -u                  Unpublish the article
 """
 
 
@@ -50,7 +51,8 @@ class Dosido(object):
             if cmd_args["new"]:
                 cls.article_create(file_pattern, cmd_args["--skip-article-refs"], cmd_args["--publish"], cmd_args["--ignore-existing"])
             if cmd_args["update"]:
-                cls.article_update(file_pattern, cmd_args["--draft"], cmd_args["--skip-article-refs"])
+                cls.article_update(file_pattern, cmd_args["--draft"], cmd_args["--skip-article-refs"],
+                                   cmd_args["--unpublish"])
 
         elif cmd_args["collection"]:
             cls.new_collection(cmd_args["<name>"], cmd_args["--private"], cmd_args["--no-dir"])
@@ -80,12 +82,12 @@ class Dosido(object):
             print("created")
 
     @staticmethod
-    def article_update(file_pattern, is_draft, skip_internals):
+    def article_update(file_pattern, is_draft, skip_internals, unpublish):
         file_paths = Dosido._get_md_files(file_pattern)
         for p in file_paths:
             file_article = Article(p, DosidoConfig())
             print("Updating {}".format(file_article.file_path))
-            file_article.update(is_draft, skip_internals)
+            file_article.update(is_draft, skip_internals, unpublish)
             print("updated")
         pass
 
