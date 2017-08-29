@@ -25,20 +25,16 @@ So we will mirror this in your project structure:
 ├── my_collection_name
 |   ├── this_is_an_article_title.md
 |   └── names_of_article_files_matter.md
+|   └── names_are_Case_sensitive.md
 ├── another_collection_name
 |   ├── another_article_name.md
-|   └── header.html
+|   └── non_mds_will_be_ignored.html
 ```
 
-### Article Names
-Filenames are  mapped to be the HelpScout article names. 
+### FileNames
+Filenames are  mapped to be the HelpScout article titles. 
 Underscores will be converted to spaces, all other punctuation will be left alone.
-
-The article titles case will be maintained on display of article titles but is case insensitive for article identification.
-
-For example, if you create `rest_api.md` on HelpScout the title will show as `rest api`. However if you change the name 
-to `Rest_API` the title on HelpScout will be changed to `Rest API` but you can continue to use that file to reference the 
-same article.
+The article title is **case sensitive** `rest_api.md` and `Rest_API.md` will not refer to the same article.
 
 ## Usage
 
