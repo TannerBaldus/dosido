@@ -48,7 +48,7 @@ class Article(BaseObject):
         # for when an article links to another's specific paragraph like /heroes/squirrel_girl#origins
         ignore_paragraph_link = use_dashes.split("#")[0]
         remove_punctuation = "".join(i for i in ignore_paragraph_link if i not in string.punctuation or i == "-")
-        return remove_punctuation
+        return remove_punctuation.lower()
 
     def _md_to_html(self):
         file_text = open(self.file_path).read()
