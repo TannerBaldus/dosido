@@ -40,15 +40,6 @@ class Article(BaseObject):
     def collection_name_from_path(file_path):
         return Path(file_path).parent.name
 
-    @staticmethod
-    def _path_to_slug(path_string):
-        article_name = Path(path_string).stem
-        use_dashes = article_name.replace("_", "-")
-        # for when an article links to another's specific paragraph like /heroes/squirrel_girl#origins
-        ignore_paragraph_link = use_dashes.split("#")[0]
-        remove_punctuation = "".join(i for i in ignore_paragraph_link if i not in string.punctuation or i == "-")
-        return remove_punctuation.lower()
-
     def _md_to_html(self):
         file_text = open(self.file_path).read()
         rendered_html = markdown(file_text, extensions=["codehilite", "fenced_code", "admonition", "toc"])
@@ -108,7 +99,10 @@ class Article(BaseObject):
 
     @staticmethod
     def _is_internal_link(url):
-        return all(i not in url for i in ["//", "mailto"]) and Article._path_to_slug(url)
+        # make sure that the link is more than just a link to a paragraph within the article
+        not_paragraph_link = bool(Path(url).stem.split("#")[0])
+        not_external_protocol = all(i not in url for i in ["//", "mailto"])
+        return not_paragraph_link and not_external_protocol
 
     def _public_url(self):
         return self._get_public_url_from_path(self.file_path)
