@@ -98,10 +98,10 @@ def main():
     try:
         d.dispatch(args)
     except ArticleDoesNotExist as e:
-        print("Couldn't find article with slug {}. Did you call dosido article new first?".format(e.slug))
+        print("Couldn't find article with title {}. Did you call dosido article new first?".format(e.title))
     except LinkedArticleNotFound as e:
-        print(("There was no public url for the linked article with slug {0} in the collection {1}.\n"
-               "Try using --skip-article-refs then updating once {0} is uploaded to help scout").format(e.slug, e.collection_name))
+        print(("There was no public url for the linked article with title {0} in the collection {1}.\n"
+               "Try using --skip-article-refs then updating once {0} is uploaded to help scout").format(e.title, e.collection_name))
     except CollectionNotSetup as e:
         print("There is no collection {} in help scout. Run dosido collection new".format(e.collection_name))
 

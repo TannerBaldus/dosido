@@ -99,10 +99,10 @@ class ApiClient(object):
                         "visibility	": visibility}
         return self.get("search/articles", query_params)
 
-    def get_article_by_slug(self, slug, collection_id=None):
-        articles = self.search_articles(slug, collection_id)["articles"]["items"]
+    def get_article_by_title(self, title, collection_id=None):
+        articles = self.search_articles(title, collection_id)["articles"]["items"]
         for article in articles:
-            if article["slug"] == slug:
+            if article["name"] == title:
                 return article
 
     def delete_article(self, article_id):
