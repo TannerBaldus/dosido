@@ -15,26 +15,27 @@ class Article(BaseObject):
         super().__init__(config)
         self.file_path = file_path
         self.slug = self._path_to_slug(file_path)
-        self.title = string.capwords(" ".join(self.slug.split("-")))
+        self.title = ' '.join(Path(file_path).stem.split("_"))
         self.collection = Collection(self.config, self.collection_name_from_path(file_path))
 
     def create(self, skip_article_refs, publish):
         status = "published" if publish else "notpublished"
+        if self._article_id:
+            raise ArticleAlreadyExists(self.slug)
         return self.api_client.create_article(self.collection.id, self.title, self.convert_text(skip_article_refs), slug=self.slug, status=status)
 
     def update(self, is_draft, skip_article_refs, unpublish):
-        status = "notpublished" if unpublish else None
+        if not self._article_id:
+            raise ArticleDoesNotExist(self.slug)
         if is_draft:
             return self.api_client.save_draft(self._article_id, self.convert_text(skip_article_refs))
+        status = "notpublished" if unpublish else None
         return self.api_client.update_article(self._article_id, text=self.convert_text(skip_article_refs),
                                               name=self.title, status=status)
-
     @property
     def _article_id(self):
         article_response = self.api_client.get_article_by_slug(self.slug, collection_id=self.collection.id)
-        if not article_response:
-            raise ArticleDoesNotExist(self.slug)
-        return article_response["id"]
+        return None if not article_response else article_response["id"]
 
     @staticmethod
     def collection_name_from_path(file_path):
