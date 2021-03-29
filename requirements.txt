@@ -17,7 +17,7 @@ pexpect==4.2.1
 pickleshare==0.7.4
 prompt-toolkit==1.0.14
 ptyprocess==0.5.2
-Pygments==2.2.0
+Pygments==2.7.4
 pyyaml>=4.2b1
 requests>=2.20.0
 shutilwhich==1.1.0
