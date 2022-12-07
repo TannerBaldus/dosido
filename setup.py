@@ -9,7 +9,7 @@ setup(name='dosido',
       license='MIT',
       install_requires=[
             "beautifulsoup4==4.6.0",
-            "certifi==2017.4.17",
+            "certifi==2022.12.7",
             "chardet==3.0.4",
             "docopt==0.6.2",
             "idna==2.5",
